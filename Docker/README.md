@@ -119,3 +119,17 @@ O Docker Host também possui um **gerenciamento de volumes**, que nos dá o pode
 Tanto o Docker Host e o Docker Host possui a feature de **Network** que garante a comunicação entre containers. Um container é um processo, e precisa de uma forma de se comunicar com outro container (exemplo: container A está rodando uma aplicação que necessita conectar num banco de dados que está no container B), e é no **network** que o Docker permite esta comunicação.
 
 ![Docker Host & Client](docker-host-client.PNG)
+
+## Instalando o Docker
+
+O docker foi feito basicamente para o Linux. Para o Windows Professional se utiliza o recurso do Hyper-V. Já para as outras versões do Windows (e.g. Home), será necessário instalar o **Docker Toolbox**, que rodará o Linux nesta máquina virtual.
+
+## Hello World com Docker - comandos iniciais
+
+- `docker run <image-name>` Cria um container;
+- `docker ps` Lista os containers que estão rodando;
+- `docker ps -a` Lista os containers criados, inclusive os que não estão rodando;
+- `docker rm <container-name-or-id>` Remove o container, mas não a imagem do IMAGE REGISTRY;
+- `docker images` Lista as imagens baixadas e que estão no cache do Docker Host;
+- `docker rmi <image-id>` Remove definitivamente a imagem do registry;
+
