@@ -17,7 +17,7 @@ SISTEMA OPERACIONAL
         Processo filho container 1
         Processo filho container 1
 
-    Processo pau Container 2
+    Processo pai Container 2
         Processo filho container 2
         Processo filho container 2
         Processo filho container 2
@@ -131,5 +131,22 @@ O docker foi feito basicamente para o Linux. Para o Windows Professional se util
 - `docker ps -a` Lista os containers criados, inclusive os que não estão rodando;
 - `docker rm <container-name-or-id>` Remove o container, mas não a imagem do IMAGE REGISTRY;
 - `docker images` Lista as imagens baixadas e que estão no cache do Docker Host;
-- `docker rmi <image-id>` Remove definitivamente a imagem do registry;
+- `docker rmi <image-id>` Remove definitivamente a imagem do registry.
 
+## Gerenciamento básico de containers
+
+Nesta abordagem vamos (1) expor uma porta do nosso computador, (2) colocar o nome nos containers e (3) rodar o container em background.
+
+> Lembrando que quando subimos um container estamos subindo um processo que utiliza diversos namespaces para isolar todo o funcionamento.
+
+Vamos subir uma imagem de NGINX, sob as instruções do Docker Hub (https://hub.docker.com).
+
+Ao pesquisar a imagem NGINX e entrar nos detalhes da imagem, vamos perceber que existem várias *tags*. Sempre que formos instalar a imagem sem especificar a versão, o Docker irá baixar o `latest`. Outro ponto importante é a versão `alpine` (e.g. `nginx:alpine`), onde a NGINX foi "buildada" a partir de uma imagem com o Linux puro.
+
+Neste exemplo vamos baixar baixar a imagem com o comando `docker run nginx:latest` (ou sem o `:latest`). Você irá perceber que, após o download da imagem o container NGINX é executado e a janela de prompt fica "congelada". Isso significa que este processo está rodando em background.
+
+### Como faço pra subir o container e deixar em background (sem trancar a janela de prompt atual)
+
+Para rodar em uma *daemon*, execute o comando `docker run -d nginx`.
+
+E para para o container, execute o comando `docker stop <container-id>`.
