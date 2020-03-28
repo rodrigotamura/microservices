@@ -131,7 +131,9 @@ O docker foi feito basicamente para o Linux. Para o Windows Professional se util
 - `docker ps -a` Lista os containers criados, inclusive os que não estão rodando;
 - `docker rm <container-name-or-id>` Remove o container, mas não a imagem do IMAGE REGISTRY;
 - `docker images` Lista as imagens baixadas e que estão no cache do Docker Host;
-- `docker rmi <image-id>` Remove definitivamente a imagem do registry.
+- `docker rmi <image-id>` Remove definitivamente a imagem do registry;
+- `docker ps -a -q` Retorna todos os hashes dos containers existentes;
+- `docker rm $(docker ps -a -q) -f` Força (`-f`) a remoção de todos os containers existentes.
 
 ## Gerenciamento básico de containers
 
@@ -282,3 +284,17 @@ Podemos concluir então que **a rede do tipo *bridge* não faz resolução de no
 3. Vamos criar os containers passando a flag `--net=<nome-rede>`, ficando assim: `docker run -d --name nginx3 --net=my_netword nginx` (também crie o `nginx4` com os mesmos parâmetros)/
 4. Entre em um dos containers, e agora você conseguirá ter sucesso ao executar o ping para outro container que pertence à mesma network através do nome do container (e também pelo ping, como antes).
 
+## Docker Commit
+
+A imagem é como uma *snapshot* de um container. Como podemos então construir uma imagem própria?
+
+Existem duas forma de se fazer isso:
+
+1. Através do **Dockerfile**;
+2. A partir de um container criado e modificado dando um **commit**.
+
+Vamos criar um container simples: `docker run -d --name=nginx -p 8080:80 nginx` e realizar uma alteração dentro deste container. Logo após vamos gerar uma imagem com estas alterações através do comando `docker commit <container-id> <nome-imagem>` (e.g. `docker commit 3fdb6a0b3b4c rodrigotamura/nginx-commit`).
+
+Agora liste as imagens disponveis através do comando `docker images`, e você verá a imagem que criamos a partir da imagem alterada. Crie um novo container a partir desta imagem criada: `docker run -d --name=nginx2 -p 8082:80 rodrigotamura/nginx-commit`.
+
+Podemos também comitar uma nova imagem passando a tag: `docker commit 3fdb6a0b3b4c rodrigotamura/nginx-commit:v2`.
