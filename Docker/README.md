@@ -150,3 +150,28 @@ Neste exemplo vamos baixar baixar a imagem com o comando `docker run nginx:lates
 Para rodar em uma *daemon*, execute o comando `docker run -d nginx`.
 
 E para para o container, execute o comando `docker stop <container-id>`.
+
+## Nomeando o container e Expondo portas
+
+Vamos executar o comando `docker run -d --name my_nginx nginx:alpine`, onde `-d` execute em um daemon e `--name my_nginx` nomeando o container como *my_nginx*.
+
+Percebe-se que, ao listar o container que está rodando, haverá ali a porta correspondente que está disponível para aceso:
+
+![Container ports](docker-ports.png)
+
+Se tentarmos acessar via url `http://localhost:80` perceberemos que não iremos conseguir acessar. Acontece que de fato o container está expondo a porta 80, porém temos que **mapear** esta porta 80 através de uma porta de nossa máquina.
+
+Para isso, temos que passar um novo parâmetro no ato da criação do container:
+
+`docker run -d --name nginx_porta -p 8080:80 nginx:alpine`
+
+Através do parâmetro `-p` passado estamos determinando que ao acessar a porta do Docker Host 8080 (pode ser qualquer outra porta) está acessará a porta 80 do container criado. Veja agora como ficou o container via `docker ps`:
+
+![Port mapping](port-mapping.png)
+
+Basta acessar via navegador a url `http://localhost:8080` e veremos o NGINX rodando.
+
+> Caso estejamos utilizando a **Docker Machine** - Docker rodando como uma máquina virtual, ou seja, o Docker Toolbox - ela disponibilizará um IP próprio, ficando o acesso `http://ocker-machine:80`.
+
+
+
