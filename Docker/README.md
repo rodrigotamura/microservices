@@ -193,3 +193,92 @@ Ao criar um novo container, vamos adicionar um novo parâmetro: `-v <caminho-nos
 
 Neste caso, criamos um container que o conteúdo que tiver dentro do `$(pwd)` - que seria a pasta atual que foi criado o container, aparecerá dentro do diretório definido dentro do container. Caso venhamos a criar um arquivo dentro do diretório, quer seja na máquina local ou no container, tal arquivo aparecerá em ambos.
 
+## Trabalhando com Networks - comunicação entre containers - Docker Networks
+
+O Docker, por padrão, possui 3 tipos de redes (podem haver mais).
+
+1. Caso queiramos que um container se comunique com outro, utilizamos o tipo mais comum, o **bridge**;
+2. O tipo **none**, que não é exatameente um tipo de rede, mas, quando aplicado, configura o container a não ter nenhum tipo de acesso externo, somente a rede local;
+3. O tipo **host** serve para fazer com que o container se comunique com a rede do nosso PC de igual para igual.
+
+Repetimos que, por padrão, o tipo **bridge** já estará configurado pelo Docker em cada novo container criado.
+
+Execute o comando `docker network ls` para listar os tipos disponíveis.
+
+Agora, vamos a uma situação. Vamos criar dois containers chamados nginx1 e nginx2.
+
+`docker run -d --name nginx1 nginx`
+`docker run -d --name nginx2 nginx`
+
+Vamos entrar no container nginx1 e tentar dar o `ping` em nginx2.
+
+> Provavel que tenha que instalar o ping: `apt-get update && apt-get install iputils-ping`
+
+Provavelmente o nginx1 não conseguirá encontrar o nginx2. Vamos verificar o motivo.
+
+Fora de qualquer container, execute o comando `docker network inspect bridge` e você verá os containers que estão nesta rede. Veja o output deste comando:
+
+```json
+[
+    {
+        "Name": "bridge",
+        "Id": "e73e181a86c525b1e60c217bbe9b2c9350c6686719b5a77da04e42511e2ea5c3",
+        "Created": "2020-03-28T14:14:36.374929072-03:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.17.0.0/16",
+                    "Gateway": "172.17.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "534f97cff69cf867665ad220e469be190f9333c5a83b28e488e52b9844848468": {
+                "Name": "nginx2",
+                "EndpointID": "0e3f4c2f89f8b4900988d803d5fff98877e542a827c0c158ba556bd896dcc6eb",
+                "MacAddress": "02:42:ac:11:00:03",
+                "IPv4Address": "172.17.0.3/16",
+                "IPv6Address": ""
+            },
+            "aec80390c379b47226a68fd76e4a58a5d766d520ccec495b638661679ee927f8": {
+                "Name": "nginx1",
+                "EndpointID": "ec3b491035f5a5b49b48492672db8debf0f8e71cc5033de1bac076f3bccbc96c",
+                "MacAddress": "02:42:ac:11:00:02",
+                "IPv4Address": "172.17.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {
+            "com.docker.network.bridge.default_bridge": "true",
+            "com.docker.network.bridge.enable_icc": "true",
+            "com.docker.network.bridge.enable_ip_masquerade": "true",
+            "com.docker.network.bridge.host_binding_ipv4": "0.0.0.0",
+            "com.docker.network.bridge.name": "docker0",
+            "com.docker.network.driver.mtu": "1500"
+        },
+        "Labels": {}
+    }
+]
+```
+
+Note que dentro da chave `Containers` estão os dois containers que criamos - nginx1 e nginx2 - e cada um deles possuem um IP. Vamos copiar o IP do container e novamente tentar executar o ping em um dos containers para este IP copiado. Voc"e ver[a que agora estamos conseguindo localizar.
+
+Podemos concluir então que **a rede do tipo *bridge* não faz resolução de nome, fzendo com que a conexão seja somente por IP**. Mas se quisermos que o Docker reconheça estes nomes? Siga os passos a seguir:
+
+1. Crie uma rede com o comando `docker network create -d bridge my_network`;
+2. Execute o comando `docker network ls` somente para ter certeza que a rede `my_network` foi criada;
+3. Vamos criar os containers passando a flag `--net=<nome-rede>`, ficando assim: `docker run -d --name nginx3 --net=my_netword nginx` (também crie o `nginx4` com os mesmos parâmetros)/
+4. Entre em um dos containers, e agora você conseguirá ter sucesso ao executar o ping para outro container que pertence à mesma network através do nome do container (e também pelo ping, como antes).
+
