@@ -183,3 +183,13 @@ Mas, caso queiramos de fato "entrar" para dentro do container temos que executar
 
 > Lembrando que todas as altrações que fizermos no container e o mesmo for derrubado e iniciado novamente, todas as alterações serão perdidas, pois a criação de um container se dá a partir de uma imagem, que é imutável. Poteriormente vamos ver sobre `commit`.
 
+## Iniciando com volumes
+
+Todas as alterações em arquivos que fizemos dentro de um container após este mesmo container for "derrubado" serão perdidos. Podemos trabalhar com container para trabalharmos com volumes que serão persistentes mesmo que tal container seja derrubado.
+
+Ao criar um novo container, vamos adicionar um novo parâmetro: `-v <caminho-nosso-pc>:<caminho-container>`
+
+> Exemplo: `docker run -d --name my_nginx -p 8080:80 -v $(pwd):/usr/share/nginx/html nginx`
+
+Neste caso, criamos um container que o conteúdo que tiver dentro do `$(pwd)` - que seria a pasta atual que foi criado o container, aparecerá dentro do diretório definido dentro do container. Caso venhamos a criar um arquivo dentro do diretório, quer seja na máquina local ou no container, tal arquivo aparecerá em ambos.
+
