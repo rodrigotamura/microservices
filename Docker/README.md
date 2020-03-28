@@ -297,4 +297,15 @@ Vamos criar um container simples: `docker run -d --name=nginx -p 8080:80 nginx` 
 
 Agora liste as imagens disponveis através do comando `docker images`, e você verá a imagem que criamos a partir da imagem alterada. Crie um novo container a partir desta imagem criada: `docker run -d --name=nginx2 -p 8082:80 rodrigotamura/nginx-commit`.
 
-Podemos também comitar uma nova imagem passando a tag: `docker commit 3fdb6a0b3b4c rodrigotamura/nginx-commit:v2`.
+Podemos também comitar uma nova imagem passando a tag: `docker commit 3fdb6a0b3b4c rodrigotamura/nginx-commit:v2`. Se não passarmos nenhuma tag, a versão automaticamente é atribuída como *latest*.
+
+## Fazendo um push da imagem no DockerHub
+
+Assim como no GitHub, podemos dar um *push* em uma imagem que criamos a partir do commit e enviar para o repositório no DockerHub deixando-o disponível para qualquer um.
+
+Para realizarmos um *oush* no DockerHub, precisamos realizar o login através do comando `docker login` e será necessário informar as credenciais de acesso.
+
+Execute o comando `docker push <nome-container>` (e.g. `docker push rodrigotamura/nginx-commit:latest`), e, ao acessar o repositório no DockerHub com as credenciais, você podeŕa visualizar a imagem enviada:
+
+![Dockerhub Repository](dockerhub-repo.png)
+
