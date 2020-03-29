@@ -303,9 +303,73 @@ Podemos também comitar uma nova imagem passando a tag: `docker commit 3fdb6a0b3
 
 Assim como no GitHub, podemos dar um *push* em uma imagem que criamos a partir do commit e enviar para o repositório no DockerHub deixando-o disponível para qualquer um.
 
-Para realizarmos um *oush* no DockerHub, precisamos realizar o login através do comando `docker login` e será necessário informar as credenciais de acesso.
+Para realizarmos um *push* no DockerHub, precisamos realizar o login através do comando `docker login` e será necessário informar as credenciais de acesso.
 
 Execute o comando `docker push <nome-container>` (e.g. `docker push rodrigotamura/nginx-commit:latest`), e, ao acessar o repositório no DockerHub com as credenciais, você podeŕa visualizar a imagem enviada:
 
 ![Dockerhub Repository](dockerhub-repo.png)
+
+## Trabalhando com Dockerfile
+
+Como já abordamos antes, podemos criar uma nova imagem totalmente customizada através do Dockerfile com uma linguagem totalmente declarativa.
+
+Em um diretório qualquer, vamos criar o arquivo `Dockerfile` (isso, sem extensão mesmo).
+
+> [Clique aqui](./swoole/Dockerfile) para visualizar o Dockerfile final construído neste tópico.
+
+### Comando FROM
+
+Num Dokcerfile SEMPRE começamos com a linha `FROM <nome-imagem>` (e.g. `FROM php:7.3-cli`).
+
+Agora vamos fazer um `build` de uma imagem com uma tag chamada `test_swoole` no diretorio que o Dockerfile se encontrar: `docker build -t test_swoole .` (o ponto significa que o Dockerfile está no diretório atual, assim, podemos especificar o caminho, até mesmo o nome do Dokcerfile se estiver em outro nome, mas por padrão este sempre irá procurar pelo nome Dockerfile).
+
+Após a imagem ter sido baixada, você perceberá que na listagem das imagens haverão tanto a imagem do PHP quanto a imagem *teste_swoole*.
+
+### Comando RUN
+
+Através desta linha de comando conseguiremos executar comandos dentro do container no ato da criação do mesmo.
+
+> não confundir `RUN` com `CMD`, que vamos ver mais tarde.
+
+Vamos adicionar alguns comandos dentro do arquivo Dockerfile:
+
+```dockerfile
+RUN pecl install swoole # 👉 Instalando extensão swoole no PHP via pecl
+RUN docker-php-ext-enable swoole # 👉 comando para adicionar a extensão swoole no php
+```
+
+Note que estou utilizando o comando `RUN` duas vezes seguidas. Podemos melhorar esta escrita se fizermos algo do tipo:
+
+```dockerfile
+RUN pecl install swoole \
+    && docker-php-ext-enable swoole
+```
+
+Criamos então [este arquivo PHP](./swoole/index.php) para inicializar um servidor Swole, e adicionamos a seguinte linha de comando no nosso Dockerfile:
+
+```
+COPY index.php /var/www 
+```
+
+Este comando irá copiar o arquivo index.php que criamos para dentro da pasta `/var/www` do container.
+
+Agora, **precisaremos expor a porta do Swole - 9501** para fora. Para isso vamos adicionar mais uma linha de comando no Dockerfile:
+
+```Dockerfile
+EXPOSE 9501
+```
+
+Agora, se tentarmos subir o container desta imagem buildada: `docker run -d --name swoole -p 9501:9501 test_swoole`, vamos notar que o container inicializou mas logo finalizou. Acontece que toda vez que um container ele tem algo que se chama **entry file**, que o comando que será executado logo quando um container sobe. E será o **entry file** que vai executar comandos para garantir que este container fique no ar.
+
+No Dockerfile vamos adicionar uma nova linha de comando:
+
+```Dockerfile
+ENTRYPOINT ("php","/var/www/index.php", "start")
+```
+
+Agora temos que rodar novamente o `build` e depois gerar o container a partir desta nova imagem, e você perceberá que o container está rodando em segundo plano. Veja abaixo o comando que o ENTRYPOINT está executando:
+
+![ENTRYPOINT](entrypoint.png)
+
+> 👍 **BOAS PRÁTICAS:** Procure sempre manter o Dockerfile mais enxuto possível, evitando instalação de recursos desnecessários, pois quanto mais recursos maior será a vulnerabilidade e erros o container poderá apresentar.
 
