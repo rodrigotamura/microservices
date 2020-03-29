@@ -373,3 +373,27 @@ Agora temos que rodar novamente o `build` e depois gerar o container a partir de
 
 > 👍 **BOAS PRÁTICAS:** Procure sempre manter o Dockerfile mais enxuto possível, evitando instalação de recursos desnecessários, pois quanto mais recursos maior será a vulnerabilidade e erros o container poderá apresentar.
 
+## Instalando Laravel com o Docker
+
+Primeiramente, vamos criar um novo projeto Laravel através do comando `composer create-project laravel/laravel` e logo, dentro da pasta do projeto, execute o comando `composer install`.
+
+O Objetivo neste tópico é colocarmos o Laravel dentro de um container rodando, pois futuramente vamos gerar uma imagem para alguém rodar.
+
+Dentro da pasta do projeto Laravel criado, vamos criar um [Dockerfile](./Docker/laravel). Você encontrará maiores detalhes dentro deste Dockerfile criado.
+
+Vamos gerar a imagem a partir destas configurações do Dockerfile:
+
+`docker build -t rodrigotamura/laravel .`
+
+Vamos executar o container desta imagem, definindo no volume a indicação do projeto Laravel que criamos:
+
+`docker run -d --name laravel -v <caminho-do-projeto-laravel>:/var/www -p 9000:9000 rodrigotamura/laravel`
+
+Ao tentarmos acessar o endereço http://localhost:9000, retornará uma página sem resposta. Isso acontece porque não estamos conseguindo acessar o PHP FPM e o PHP FPM não está chamando a configuração específica do Laravel. Para solucionar, precisamos acessar o container via `docker exec -it laravel apk add bash` pois, como estamos utilizando a versão alpine o bash não está disponível. Logo após executamos o comando `docker exec -it laravel bash`.
+
+De dentro do container, ao entrar no diretório que indicamos no volume, vamos iniciar o projeto Laravel via `php artisan serve --host-0.0.0.0`. De fora do container, ao acessar http://localhost:9000 ainda retornará página sem resposta. Isso acontece pois o Laravel por padrão dispõe a porta 8000. Então temos que remover o container atual e criar outro com as mesmas configurações, porém mapeando a porta 8000 e iniciamos o servidor Laravel novamente.
+
+#### Porém esta não é a forma ideal, pois ainda temos o Docker Compose!
+
+
+
