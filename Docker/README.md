@@ -395,5 +395,31 @@ De dentro do container, ao entrar no diretório que indicamos no volume, vamos i
 
 #### Porém esta não é a forma ideal, pois ainda temos o Docker Compose!
 
+## Fazendo o build de uma imagem com Laravel
 
+Você deve ter percebido que acabamos de fazer várias coisas para roda uma aplicação Laravel. Porém, como faríamos para deixar uma imagem pronta para que, quando um container a partir desta imagem subisse, tudo estaria pronto?
 
+A ideia é copiar todo o conteúdo de um projeto Laravel fique dentro de uma imagem. Queremos que esta imagem já esteja totalmente pronta para ser executada sem problemas numa AWS, por exemplo.
+
+Vamos adicionar algumas linhas de comando para dentro de nosso [Dockerfile](./Docker/laravel/Dockerfile):
+
+```Dockerfile
+# Os comandos RUN abaixo serao executados de dentro do /var/www
+WORKDIR /var/www
+
+# Removendo todo o conteúdo padrão
+RUN rm -rf /var/www/html
+
+# copiando todo o conteudo do Laravel para a pasta publica do PHPFPM
+COPY . /var/www
+
+# Criando um link simbolico da pasta /var/www/public (do Laravel)
+# para /var/www/html (que é a pasta pública do PHP FPM). 
+# Ou seja, toda vez que estiverem acessando a pasta html
+# na realidade estao acessando a pasta public, tipo um reascacdirecionamento
+RUN ln -s public html
+```
+
+Vamos agora fazer um novo build desta imagem: `docker build -t rodrigotamura/laravel ./Docker/laravel/`.
+
+Finalmente vamos dar um push para o Docker Hub.
