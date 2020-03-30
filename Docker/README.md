@@ -1,7 +1,5 @@
 # Docker
 
-## Modulo 1:
-
 ### a. Conceitos Basicos
 
 container é apenas uma máquina virtual mais leve? Na verdade, o conceito vai mais além disso:
