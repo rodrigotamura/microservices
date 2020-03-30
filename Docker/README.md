@@ -63,7 +63,7 @@ Podemos também expor portas específicas nesta imagem para termos acesso a este
 
 Portanto, o arquivo Dockerfile é utilizado para **construir a imagem**. Caso não haja necessidade de fazer alterações em uma determinada imagem, não haverá necessidade de se ter o Dockerfile.
 
-![Como funcionam os containers](como-funcionam-containers.png)
+![Como funcionam os containers](como-funcionam-containers.PNG)
 
 Agora vamos olhar mais de perto este processo (um dos "P"s). Ao abrí-lo, vamos então visualizar a imagem, e ela possui um ESTADO IMUTÁVEL.
 
