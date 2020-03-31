@@ -1,0 +1,58 @@
+# temos que indicar qual a versao do DockerCompose que iremos trabalhar
+version: '3'
+
+# vamos declarar os servicos
+services:
+  # o nome será app pelo fato de termos configurado
+  # o arquivo de configuração do NGINX para busca o
+  # host app na porta 9000
+  app:
+    build: .
+    container_name: app
+    volumes:
+      - .:/var/www
+    # Definindo qual rede para este container
+    networks:
+      - app-network
+
+  # o nome do container se coloca nesta identacao
+  # que sera inclusive reconhecido pelos containers
+  # criados neste compose
+  nginx:
+    # Indicando como e qual imagem vamos fazer o build
+    # no nosso caso vamos fazer o build a partir do Dockerfile
+    # que criamos
+    build: .docker/nginx
+    # definindo o nome do container
+    container_name: nginx
+    # o container sera reiniciado caso caia?
+    restart: always
+    # Podemos entrar de forma interativa dentro do container
+    # via docker exec -it
+    tty: true
+    # configurando a porta - cada porta uma linha
+    ports:
+      # a porta 8000 do meu PC mapeia a porta 80 do NGINX no container
+      - "8000:80"
+    # configurando volumes - cada linha um volume diferente
+    volumes:
+      # todo conteudo da pasta atual sera o volume em /var/www
+      - .:/var/www
+    # Definindo qual rede para este container
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    expose:
+      - 6379
+    # Definindo qual rede para este container
+    networks:
+      - app-network
+
+# Configurando a rede
+networks:
+  # O nome da rede sera app-network
+  app-network:
+    driver: bridge
+
