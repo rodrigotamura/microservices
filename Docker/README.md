@@ -401,7 +401,7 @@ Você deve ter percebido que acabamos de fazer várias coisas para roda uma apli
 
 A ideia é copiar todo o conteúdo de um projeto Laravel fique dentro de uma imagem. Queremos que esta imagem já esteja totalmente pronta para ser executada sem problemas numa AWS, por exemplo.
 
-Vamos adicionar algumas linhas de comando para dentro de nosso [Dockerfile](./Docker/laravel/Dockerfile):
+Vamos adicionar algumas linhas de comando para dentro de nosso [Dockerfile](./laravel/Dockerfile):
 
 ```Dockerfile
 # Os comandos RUN abaixo serao executados de dentro do /var/www
@@ -423,3 +423,59 @@ RUN ln -s public html
 Vamos agora fazer um novo build desta imagem: `docker build -t rodrigotamura/laravel ./Docker/laravel/`.
 
 Finalmente vamos dar um push para o Docker Hub.
+
+## Iniciando com o Docker-Compose
+
+O Docker-Composer junta todos os serviços que agente configura dentro de um arquivo chamado `docker-compose.yaml` e, ao ser executado, sobe todos os serviços de uma só vez.
+
+Nesta abordagem, vamos tomar como exemplo criarmos um cenário rodando o Laravel com o PHP FPM, o NGINX, Redis e MySQL.
+
+Vamos criar uma pasta chamada [.docker](./laravel/.docker), e dentro desta pasta vamos criar cada serviço com seus respectivos Dockerfiles e configurações. Vamos abordar cada serviço logo abaixo:
+
+#### Preparando serviço - NGINX
+
+Vamos criar o arquivo [Dockerfile](./laravel/.docker/nginx/Dockerfile) (abra-o para maiores detalhes) e também o [arquivo de configuração do NGINX](./laravel/.docker/nginx/nginx.conf).
+
+##### Montando o docker-compose.yml
+
+Agora vamos preparar o nosso [docker-compose.yaml](./laravel/docker-compose.yaml) (abra-o para maiores detalhes).
+
+Após, vamos montar o(s) serviço(s) deste arquivo Docker-Compose (de dentro da pasta onde está o arquivo `docker-compose.yaml`):
+
+`docker-compose up -d`
+
+(o parâmetro `-d` é para rodar em *daemon*)
+
+_**Caso houver alguma alteração em algum Dockerfile que este arquivo docker-compose.yaml faça uso, será necessário rodar o seguinte comando para rodar novamente o build: `docker-compose up -d --build`**_
+
+Você deve ter percebido que o seguinte aviso apareceu:
+
+![Erro NGINX](nginx-error.png)
+
+Isso significa qque o host `app` não foi encontrado. Acontece que lá no [arquivo de configuração do NGINX](./laravel/.docker/nginx/nginx.conf) na linha `fastcgi_pass app:9000;` porque ainda não subimos este serviço chamado `app`. Posteriormente iremos resolver este problam, por enquanto vamos deixar desta forma.
+
+#### Preparando serviço - Redis
+
+Para este serviço, não há necessidade de criarmos um Dockerfile específico pois a criação deste container será de uma forma bem simples. Portanto vamos somente acrescentar algumas linhas de configuração em nosso [docker-compose.yaml](./laravel/docker-compose.yaml).
+
+Você poderá rodar novamente o comando `docker-compose up -d` para verificar se os serviços estão rodando normalmente sem erros.
+
+#### App - Aplicação
+
+Vamos editar novamente o [docker-compose.yaml](./laravel/docker-compose.yaml).
+
+E por fim vamos editar o [Dockerfile](./laravel/Dockerfile) desta aplicação.
+
+##### Configurando o acesso ao Redis
+
+Abra o arquivo [.env](./laravel/.env) da aplicação, e vamos alterar as configurações do Redis para as seguintes:
+
+```env
+REDIS_HOST=redis
+```
+
+#### Configurando a rede para comunicação entre containers
+
+Vamos editar novamente o [docker-compose.yaml](./laravel/docker-compose.yaml).
+
+Agora é só executar o comando `docker-compose -d --build` e verificar se houve algum erro ao colocar no ar os containers.
