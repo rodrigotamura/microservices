@@ -8,6 +8,9 @@ services:
   # host app na porta 9000
   app:
     build: .
+    # se eu não informar o container_name, este serviço assumirá outro nome
+    # quando for criado. E tanto o nome do serviço como o nome do container,
+    # se forem diferentes, serão os hosts deste serviço (teste com o ping)
     container_name: app
     volumes:
       - .:/var/www
@@ -39,6 +42,30 @@ services:
       # todo conteudo da pasta atual sera o volume em /var/www
       - .:/var/www
     # Definindo qual rede para este container
+    networks:
+      - app-network
+
+  db:
+    image: mysql:5.7
+    # O seguinte comando sera muito necessario para que nao de problema
+    command: --innodb-use-native-aio=0
+    container_name: db
+    restart: always
+    tty: true
+    ports:
+        - "3306:3306"
+    # Os seguintes comandos configurações de variáveis de ambiente para setarmos
+    # uma espécie de brinde quando utilizamos a imagem oficial do MySQL
+    environment:
+      # criando o DB chamado laravel
+      - MYSQL_DATABASE=laravel
+      # setando a senha do usuário root
+      - MYSQL_ROOT_PASSWORD=root
+      # setando o quem é o usuário root
+      - MYSQL_USER=root
+    volumes:
+      # em /var/lib/mysql está guardado todo o conteúdo do MySQL
+      - ./.docker/dbdata:/var/lib/mysql
     networks:
       - app-network
 

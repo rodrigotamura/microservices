@@ -421,7 +421,6 @@ RUN ln -s public html
 Vamos agora fazer um novo build desta imagem: `docker build -t rodrigotamura/laravel ./Docker/laravel/`.
 
 Finalmente vamos dar um push para o Docker Hub.
-<<<<<<< HEAD
 
 ## Iniciando com o Docker-Compose
 
@@ -478,5 +477,50 @@ REDIS_HOST=redis
 Vamos editar novamente o [docker-compose.yaml](./laravel/docker-compose.yaml).
 
 Agora é só executar o comando `docker-compose -d --build` e verificar se houve algum erro ao colocar no ar os containers.
-=======
->>>>>>> b06a3f9be4f89f0902bbfc9a53aab472253d3c25
+
+## Configurando MySQL com Docker Compose
+
+Vamos abrir o [docker-compose.yaml](./laravel/docker-compose.yaml), e vamos adicionar as seguintes declarações:
+
+```
+db:
+    image: mysql:5.7
+    # O seguinte comando sera muito necessario para que nao de problema
+    command: --innodb-use-native-aio=0
+    container_name: db
+    restart: always
+    tty: true
+    ports:
+        -"3306:3306"
+    # Os seguintes comandos configurações de variáveis de ambiente para setarmos
+    # uma espécie de brinde quando utilizamos a imagem oficial do MySQL
+    enviroment:
+      # criando o DB chamado laravel
+      - MYSQL_DATABASE=laravel
+      # setando a senha do usuário root
+      - MYSQL_ROOT_PASSWORD=root
+      # setando o quem é o usuário root
+      - MYSQL_USER=root
+    networks:
+      - app-network
+```
+
+Vamos apontar as configurações do Laravel para acessar o banco de dados que acabamos de criar dentro do [.env](./laravel/.env).
+
+Agora, vamos subir os serviços via `docker-compose up -d --build` e testar a conexão entre o Laravel e o banco de dados que criamos entrando no serviço via comando `docker exec -it app bash`. De dentro deste serviço, rode o comando `php artisan migrate` e podemos ver se a conexão será estabelecida.
+
+![Laravel & DB test](laravel-db-test.png)
+
+### Pequeno probleminha...
+
+Quando o container de banco de dados que acabamos de criar é destruído, todos os dados que foram criados ali também serão apagados. Isso por causa do princípio de que as imagens são imutáveis.
+
+Para resolver isso, precisamos também definir o volume para este serviço da seguinte forma:
+
+Vamos novamente abrir o [docker-compose.yaml](./laravel/docker-compose.yaml) e acrescentar as linhas de configuração de `volumes` dentro do serviço (abra o arquivo para maiores detalhes).
+
+Após definirmos estas configurações, vamos subir novamente os serviços e logo após vamos entrar no serviço `app` e rodar o comando `php artisan migrate`. É provavel que você verá o seguinte erro retornando:
+
+![Laravel MySQL error](laravel-mysql-error.png)
+
+E se tentarmos rodar o comando `php artisan migrate` novamente, tudo ocorrerá certinho. Mas o por quê aconteceu esse erro e depois não mais? Vamos ver no próximo tópico.
