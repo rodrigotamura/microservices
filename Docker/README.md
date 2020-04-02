@@ -1,7 +1,5 @@
 # Docker
 
-## Modulo 1:
-
 ### a. Conceitos Basicos
 
 container é apenas uma máquina virtual mais leve? Na verdade, o conceito vai mais além disso:
@@ -63,7 +61,7 @@ Podemos também expor portas específicas nesta imagem para termos acesso a este
 
 Portanto, o arquivo Dockerfile é utilizado para **construir a imagem**. Caso não haja necessidade de fazer alterações em uma determinada imagem, não haverá necessidade de se ter o Dockerfile.
 
-![Como funcionam os containers](como-funcionam-containers.png)
+![Como funcionam os containers](como-funcionam-containers.PNG)
 
 Agora vamos olhar mais de perto este processo (um dos "P"s). Ao abrí-lo, vamos então visualizar a imagem, e ela possui um ESTADO IMUTÁVEL.
 
@@ -423,6 +421,7 @@ RUN ln -s public html
 Vamos agora fazer um novo build desta imagem: `docker build -t rodrigotamura/laravel ./Docker/laravel/`.
 
 Finalmente vamos dar um push para o Docker Hub.
+<<<<<<< HEAD
 
 ## Iniciando com o Docker-Compose
 
@@ -479,3 +478,5 @@ REDIS_HOST=redis
 Vamos editar novamente o [docker-compose.yaml](./laravel/docker-compose.yaml).
 
 Agora é só executar o comando `docker-compose -d --build` e verificar se houve algum erro ao colocar no ar os containers.
+=======
+>>>>>>> b06a3f9be4f89f0902bbfc9a53aab472253d3c25
