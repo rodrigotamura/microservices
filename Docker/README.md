@@ -524,3 +524,15 @@ Após definirmos estas configurações, vamos subir novamente os serviços e log
 ![Laravel MySQL error](laravel-mysql-error.png)
 
 E se tentarmos rodar o comando `php artisan migrate` novamente, tudo ocorrerá certinho. Mas o por quê aconteceu esse erro e depois não mais? Vamos ver no próximo tópico.
+
+## Resolução de problemas com o Docker Compose
+
+Vamos explicar o motivo pelo qual ocorreu o último erro quando nós rodamos o `php artisan migrate` pela primeira vez com os volumes definidos no serviço de banco de dados.
+
+Isso acontece porque o MySQL não estava pronto, ou seja, o banco de dados não estava carregado totalmente quando rodamos o comando, ocasionando o problema.
+
+Para que esse erro não ocorra, será necessário configurar no docker-compose.yaml para que o serviço `app` seja criado somente depois do serviço `db`. Para isso vamos utilizar o comando `depends_on`. Veja como utilizamos dentro do [docker-compose.yaml](./laravel/docker-compose.yaml), que está como dependência do serviço `app`.
+
+Mas na versão 3 do Docker este comando não irá funcionar, temos que utilizar a versão **2.3** para que possamos utilizar os comandos condicionais. E não se esqueça de checar as declarações de `healthcheck` no serviço `db` no docker-compose.yaml.
+
+Agora, provavelmente você irá notar que o serviço de `app` irá "demorar" para ser criado pois ele está aguardando o `db` dar sinal de que o serviço está SAUDÁVEL mediante o teste de `SELECT` que definimos lá no docker-compose.yaml.
