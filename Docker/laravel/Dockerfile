@@ -1,4 +1,4 @@
-FROM php:7.3.6-fpm-alpine3.9
+FROM php:7-fpm-alpine3.9
 
 # Instalando o bash, mysql
 # Logo apos adicionando a extensao para o PHP se comunicar com o MySQL
@@ -21,12 +21,19 @@ COPY . /var/www
 RUN curl -s https://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer
 
+RUN whoami && \
+    groups $(whoami)
+
 
 # Iniciando o Laravel
 RUN composer install && \
             cp .env.example .env && \
             php artisan key:generate && \
             php artisan config:cache
+
+# Corrigindo um problema de permissao que ocorre
+RUN chown -R www-data:www-data * && \
+    php artisan key:generate
 
 # Criando um link simbolico da pasta /var/www/public (do Laravel)
 # para /var/www/html (que é a pasta pública do PHP FPM).
