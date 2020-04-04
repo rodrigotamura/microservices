@@ -1,5 +1,42 @@
 # Docker
 
+# Table of contents
+
+- [Docker](#docker)
+    - [a. Conceitos Basicos](#a-conceitos-basicos)
+      - [a.1 Namespaces](#a1-namespaces)
+      - [a.2 Cgroups](#a2-cgroups)
+      - [a.3 File System](#a3-file-system)
+      - [a.4 Imagens](#a4-imagens)
+        - ["Onde ficam as imagens?"](#onde-ficam-as-imagens)
+  - [Docker Host & Docker Client](#docker-host--docker-client)
+  - [Instalando o Docker](#instalando-o-docker)
+  - [Hello World com Docker - comandos iniciais](#hello-world-com-docker---comandos-iniciais)
+  - [Gerenciamento básico de containers](#gerenciamento-bsico-de-containers)
+    - [Como faço pra subir o container e deixar em background (sem trancar a janela de prompt atual)](#como-fao-pra-subir-o-container-e-deixar-em-background-sem-trancar-a-janela-de-prompt-atual)
+  - [Nomeando o container e Expondo portas](#nomeando-o-container-e-expondo-portas)
+  - [Executando comandos no container](#executando-comandos-no-container)
+  - [Iniciando com volumes](#iniciando-com-volumes)
+  - [Trabalhando com Networks - comunicação entre containers - Docker Networks](#trabalhando-com-networks---comunicao-entre-containers---docker-networks)
+  - [Docker Commit](#docker-commit)
+  - [Fazendo um push da imagem no DockerHub](#fazendo-um-push-da-imagem-no-dockerhub)
+  - [Trabalhando com Dockerfile](#trabalhando-com-dockerfile)
+    - [Comando FROM](#comando-from)
+    - [Comando RUN](#comando-run)
+  - [Instalando Laravel com o Docker](#instalando-laravel-com-o-docker)
+      - [Porém esta não é a forma ideal, pois ainda temos o Docker Compose!](#porm-esta-no--a-forma-ideal-pois-ainda-temos-o-docker-compose)
+  - [Fazendo o build de uma imagem com Laravel](#fazendo-o-build-de-uma-imagem-com-laravel)
+  - [Iniciando com o Docker-Compose](#iniciando-com-o-docker-compose)
+      - [Preparando serviço - NGINX](#preparando-servio---nginx)
+        - [Montando o docker-compose.yml](#montando-o-docker-composeyml)
+      - [Preparando serviço - Redis](#preparando-servio---redis)
+      - [App - Aplicação](#app---aplicao)
+        - [Configurando o acesso ao Redis](#configurando-o-acesso-ao-redis)
+      - [Configurando a rede para comunicação entre containers](#configurando-a-rede-para-comunicao-entre-containers)
+  - [Configurando MySQL com Docker Compose](#configurando-mysql-com-docker-compose)
+    - [Pequeno probleminha...](#pequeno-probleminha)
+  - [Resolução de problemas com o Docker Compose](#resoluo-de-problemas-com-o-docker-compose)
+
 ### a. Conceitos Basicos
 
 container é apenas uma máquina virtual mais leve? Na verdade, o conceito vai mais além disso:
