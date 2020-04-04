@@ -96,3 +96,51 @@ Não haverá mais necessidade em trabalhar com aqueles processos inteiros de ope
 ![Aplicação Serverless](serveless.png)
 
 ![Infra - Public Cloud](public-cloud.png)
+
+## Introdução e Escalabilidade e Sistemas Monolíticos
+
+![Sistema Monolítico](app-monolitico.png)
+
+### Características de uma sistema monolítico
+
+- Tudo esta dentro de um sistema, como regra de negócios, modelagens, entidades, etc;
+- Alto acoplamento, ou seja, o sistema depende dele mesmo;
+- Processo de deploy a cada mudança, ou seja, caso haja uma pequena alteração será necessário realizar o deploy de tod a aplicação;
+- Pelo fato de ser um sistema único, raramente existem várias tecnologias utilizadas (se o sistema é feito em Java, raramente vai ter algo ecrito em PHP);
+
+
+### Porém sistema monolítico não deve ser totalmente descartado
+
+- Não é crime algum utilizar sistemas monolíticos;
+- Na maioria dos casos vai atender;
+- Menos complexidade na maioria dos casos.
+
+### Escalando software
+
+Geralmente temos duas formas de escalar um software:
+
+#### 1. Escala vertical
+
+Seria a escala que gradualmente agrega-se recursos computacionais (memória, HD, processamento, etc.), é a forma mais tradicional de escalar uma aplicação.
+
+#### 2. Escala horizontal
+
+Este tipo de escalonamento se dá não na agregação de recursos computacionais, mas sim na criação de novas máquinas virtuais dentro de um servidor. Entra em cena um recurso chamado **load balancer**, que vai distribuir as cargas dentre as máquinas criadas.
+
+Geralmente é a forma de trabalho de escalonamento na AWS, GCP, Azure, etc.
+
+![Tipos de escalas](escalando.png)
+
+Existe uma diferença muito grande neste formato de escala - horizontal - que está ligada diretamente com o processo de arquitetura de software.
+
+### Detalhes de uma arquitetura da aplicação
+
+Para escalarmos de forma vertical ou horizontal temos que levar em consideração as seguintes situações:
+
+- **Discos efêmeros**, onde as informações armazenadas serão temporárias que, quendo a máquina ée destruída, não teremos mais acesso às tais informações;
+- **Servidor de aplicação vs Servidor de assets**, sabe quando o usuário vai fazer um upload no seu servidor e você guarda lá na pasta *uploads* que nem o Wordpress faz? Isso não existe mais! Tem que ter uma separação de quais arquivos são da aplicação e das que são **assets** (que são os arquivos estáticos). Imagina que estamos numa imagem em uma máquina e tudo está acontecendo ali sem problemas, agora, quando temos várias máquinas pequenas o que acontece? Nós fazemos o upload de um arquivo e este upload fica disponível numa única máquina. Se o usuário entra no load balance e acaba acessando outra máquina, não encontrará tais arquivos que demos o upload. Então temos que levar isso em conta numa arquitetura.
+- **Cache centralizado**, imagine que a nossa aplicação possui recurso de cache servido através do Redis, numa abordagem vertical o Redis está disponível dentro da própria máquina, já na abordagem horizontal o Reds deverá ter a sua própri instância ou máquina de cache para que todos que acessarem, independente de qual máquina consiga soncumir as informações do cache. Pois um cache por máquina não seria a forma correta de se fazer.
+- **Sessões centralizadas**, quando o usuário cria uma sessão em uma máquina, e logo após acaba sendo redirecionado pelo load balancer para outra instância de máquina, a mesma sessão deve estar disponível de forma distribuída.
+- **Upload & Gravação de arquivos**, já abordade no item *Servidor de aplicação vs Servidor de assets*;
+
+Agora, o mais importante das considerações, levando em conta todos os itens anteriores é que **TUDO PODE TER QUE SER DESTRUÍDO E CRIADO FACILMENTE**.
