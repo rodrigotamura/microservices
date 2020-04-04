@@ -144,3 +144,34 @@ Para escalarmos de forma vertical ou horizontal temos que levar em consideraçã
 - **Upload & Gravação de arquivos**, já abordade no item *Servidor de aplicação vs Servidor de assets*;
 
 Agora, o mais importante das considerações, levando em conta todos os itens anteriores é que **TUDO PODE TER QUE SER DESTRUÍDO E CRIADO FACILMENTE**.
+
+## Distribuição de Responsabilidades
+
+Vimos anteriormente a complexidade e desafios em escalar um software de forma horizontal.
+
+Portanto, temos que desenvolver o software dividindo as responsabilidades.
+
+Supomos que temos a nossa aplicação, **numa abordagem vertical**, e pensando de uma forma mais distribuída, ou seja, fora da aplicação, temos um proxy reverso - como um NGINX em que toda a parte web ou servidor web cai nele e ele delega e faz a comunicação com a aplicação -, temos o Elastic pra consulta como se fosse um banco de dados, temos os assets - arquivos estáticos não ficam dentro da aplicação (imagens, uploads, etc) -, temos também o cache e o banco de dados. Esta distribuição ficaria da seguinte forma:
+
+![Distribuição de responsabilidades vertical](distribuicao-responsabilidades.png)
+
+Esta distribuição é muito vantajosa, pois quando houver a necessidade de destruirmos a aplicação e dar o rebuild, nenhuma configuração do proxy, nenhum dado do Elastis ou banco de dados, etc. serão destruídos.
+
+> Dica: Para banco de dados utilize de preferência o serviço de RDS da AWS, sem se preocupar com processos de escalar, redundância, backups, etc.
+
+Agora vamos à seguinte distribuição com uma **abordagem horizontal**, onde teremos várias instâncias da mesma aplicação que vão consumir os mesmos recursos:
+
+![Distribuição de responsabilidades horizontal](distribuicao-responsabilidades-horizontal.png)
+
+<div style="margin: 15px 0; width: 100%; text-align: center; background: #f5c1c2; padding: 10px; border-radius:10px">❗ 👆 Mas, ainda assim, trata-se de uma aplicação MONOLÍTICA 👆❗</div>
+
+Ou seja, normalmente as pessoas pensam que arquitetando o ecossistema de uma aplicação desta forma distribuída estão elaborando microsserviços.
+
+Portanto aqui mostramos que existe a abordagem de estar trabalhando em um monolito em uma escala vertical com serviços totalmente distribuídos, descartando a ideia de que a arquitetura monolítica está em desuso.
+
+### Quando aplicações monolíticas podem parar de valer a pena?
+
+- Times grandes;
+- Necessidade de escalar todo o sistema pelo fato de uma área em específico esteja com pico de utilização;
+- Risco de um deploy completo começa a se elevar, pois quanto maior a aplicação mais crítica ela se torna. Fica aquele medo: se eu fizer um redeploy de minha aplicação, só por causa de uma pequena alteração de uma área, quem sabe, quase não tão utilizada, e cair tudo? 😨
+- Necessidade de utilizar tecnologias diferentes.
