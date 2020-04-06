@@ -473,7 +473,7 @@ Vamos criar o arquivo [Dockerfile](./laravel/.docker/nginx/Dockerfile) (abra-o p
 
 ##### Montando o docker-compose.yml
 
-Agora vamos preparar o nosso [docker-compose.yaml](./laravel/docker-compose.yaml) (abra-o para maiores detalhes).
+Agora vamos preparar o nosso [docker-compose.yaml](./laravel/docker-compose-v2.yaml) (abra-o para maiores detalhes).
 
 Após, vamos montar o(s) serviço(s) deste arquivo Docker-Compose (de dentro da pasta onde está o arquivo `docker-compose.yaml`):
 
@@ -491,13 +491,13 @@ Isso significa qque o host `app` não foi encontrado. Acontece que lá no [arqui
 
 #### Preparando serviço - Redis
 
-Para este serviço, não há necessidade de criarmos um Dockerfile específico pois a criação deste container será de uma forma bem simples. Portanto vamos somente acrescentar algumas linhas de configuração em nosso [docker-compose.yaml](./laravel/docker-compose.yaml).
+Para este serviço, não há necessidade de criarmos um Dockerfile específico pois a criação deste container será de uma forma bem simples. Portanto vamos somente acrescentar algumas linhas de configuração em nosso [docker-compose.yaml](./laravel/docker-compose-v2.yaml).
 
 Você poderá rodar novamente o comando `docker-compose up -d` para verificar se os serviços estão rodando normalmente sem erros.
 
 #### App - Aplicação
 
-Vamos editar novamente o [docker-compose.yaml](./laravel/docker-compose.yaml).
+Vamos editar novamente o [docker-compose.yaml](./laravel/docker-compose-v2.yaml).
 
 E por fim vamos editar o [Dockerfile](./laravel/Dockerfile) desta aplicação.
 
@@ -511,13 +511,13 @@ REDIS_HOST=redis
 
 #### Configurando a rede para comunicação entre containers
 
-Vamos editar novamente o [docker-compose.yaml](./laravel/docker-compose.yaml).
+Vamos editar novamente o [docker-compose.yaml](./laravel/docker-compose-v2.yaml).
 
 Agora é só executar o comando `docker-compose -d --build` e verificar se houve algum erro ao colocar no ar os containers.
 
 ## Configurando MySQL com Docker Compose
 
-Vamos abrir o [docker-compose.yaml](./laravel/docker-compose.yaml), e vamos adicionar as seguintes declarações:
+Vamos abrir o [docker-compose.yaml](./laravel/docker-compose-v2.yaml), e vamos adicionar as seguintes declarações:
 
 ```
 db:
@@ -554,7 +554,7 @@ Quando o container de banco de dados que acabamos de criar é destruído, todos 
 
 Para resolver isso, precisamos também definir o volume para este serviço da seguinte forma:
 
-Vamos novamente abrir o [docker-compose.yaml](./laravel/docker-compose.yaml) e acrescentar as linhas de configuração de `volumes` dentro do serviço (abra o arquivo para maiores detalhes).
+Vamos novamente abrir o [docker-compose.yaml](./laravel/docker-compose-v2.yaml) e acrescentar as linhas de configuração de `volumes` dentro do serviço (abra o arquivo para maiores detalhes).
 
 Após definirmos estas configurações, vamos subir novamente os serviços e logo após vamos entrar no serviço `app` e rodar o comando `php artisan migrate`. É provavel que você verá o seguinte erro retornando:
 
@@ -568,8 +568,41 @@ Vamos explicar o motivo pelo qual ocorreu o último erro quando nós rodamos o `
 
 Isso acontece porque o MySQL não estava pronto, ou seja, o banco de dados não estava carregado totalmente quando rodamos o comando, ocasionando o problema.
 
-Para que esse erro não ocorra, será necessário configurar no docker-compose.yaml para que o serviço `app` seja criado somente depois do serviço `db`. Para isso vamos utilizar o comando `depends_on`. Veja como utilizamos dentro do [docker-compose.yaml](./laravel/docker-compose.yaml), que está como dependência do serviço `app`.
+Para que esse erro não ocorra, será necessário configurar no docker-compose.yaml para que o serviço `app` seja criado somente depois do serviço `db`. Para isso vamos utilizar o comando `depends_on`. Veja como utilizamos dentro do [docker-compose.yaml](./laravel/docker-compose-v2.yaml), que está como dependência do serviço `app`.
 
 Mas na versão 3 do Docker este comando não irá funcionar, temos que utilizar a versão **2.3** para que possamos utilizar os comandos condicionais. E não se esqueça de checar as declarações de `healthcheck` no serviço `db` no docker-compose.yaml.
 
 Agora, provavelmente você irá notar que o serviço de `app` irá "demorar" para ser criado pois ele está aguardando o `db` dar sinal de que o serviço está SAUDÁVEL mediante o teste de `SELECT` que definimos lá no docker-compose.yaml.
+
+## Dependência entre containers
+
+No último tópico, nós abordamos alguma coisa em relação às questões de dependências e o tempo que devemos esperar para um container estar pronto para um outro ser chamado utilizando o processo de healthcheck. Tudo isso graças à versão 2 do Docker Compose.
+
+Esta estratégia funcionou por muito tempo e é uma solução bem simples de ser implementada.
+
+Acontece que a versão 3 do Docker Composer é uma versão muito superior ao anterior, principalmente pelo oferecimento da integração de serviços com a parte de services, Swarm, etc.
+
+O que queremos salientar é que **o recurso de condições não está mais presente na versão 3 do Docker Compose**.
+
+Então quais são as formas que normalmente se utiliza para resolver estas queestões de dependências.
+
+Na versão 3, o Docker Composer afirma que não é o papel deles ficar monitorando a aplicação. 
+
+Então, neste tópico vamos trabalhar em detalhes com um recurso chamado **Dockerize** que faz esta verificação para nós.
+
+### Dockerize
+
+> Para não perder às configurações do docker-compose.yaml na versão 2, foi criado [este arquivo](./laravel/docker-compose-v2.yaml)
+
+Vamos abrir o [docker-compose.yaml](./laravel/docker-compose.yaml) e alterar revertermos a versão do 2.3 para o 3, bem como remover o `healthcheck` que criamos para o serviço `db`, e a dependência (`services.app.depends_on`) será aplicado uma pequena alteração (abra o arquivo para maiores detalhes).
+
+Você poderá perceber que utilizamos a propriedade `depends_on` para definir a ordem em que os serviços.
+
+**_Mas, como agente faz pra garantir que o banco de dados - MySQL - esteja pronto para rodar alguns comandos a partir do nosso container de aplicação?_**
+
+Existe um utilitário chamado [**Dockerize**](https://github.com/jwilder/dockerize#waiting-for-other-dependencies) que possui alguns recursos interessantes, dentre eles um recurso que faz este papel de checagem da saúde e funcionamento de serviços de outros containers.   
+
+Para utilizá-lo precisamos instalar o Dockerize para dentro da imagem. [Clique aqui](https://github.com/jwilder/dockerize#installation) e siga as instruções de instalação. Temos que instalar o Dockerize no container da aplicação, dentro do [Dockerfile](./laravel/Dockerfile) da aplicação.
+
+Agora vamos subir os serviços com o comando `docker-compose up -d --build` (o `--build` serve para fazer o rebuild da imagem a partir do Dockerfile que alteramos).
+

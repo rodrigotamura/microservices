@@ -1,8 +1,5 @@
 # temos que indicar qual a versao do DockerCompose que iremos trabalhar
-version: '3'
-
-# A ordem dos serviços será, subirá primeiro o Redis e o DB, depois o App
-# e finalmente o NGINX (vide propriedade depends_on em app e nginx)
+version: '2.3'
 
 # vamos declarar os servicos
 services:
@@ -17,16 +14,17 @@ services:
     container_name: app
     volumes:
       - .:/var/www
-    # quais serviços este serviço depende
-    # na versão 3 do Docker Compose, apenas garante a
-    # ordem de criação de cada serviço. Então esta app
-    # dependen tanto do db quanto do Redis pra rodar.
-    depends_on:
-      - db
-      - redis
     # Definindo qual rede para este container
     networks:
       - app-network
+    # quais serviços este serviço depende
+    depends_on:
+      # no caso seria o serviço db
+      db:
+        # que deve estar SAUDÁVEL. Mas para definir que tal
+        # serviço é saudável devemos adicionar a linha healthcheck
+        # que configuramos lá no serviço db
+        condition: service_healthy
 
   # o nome do container se coloca nesta identacao
   # que sera inclusive reconhecido pelos containers
@@ -54,8 +52,6 @@ services:
     # Definindo qual rede para este container
     networks:
       - app-network
-    depends_on:
-      - app
 
   db:
     image: mysql:5.7
@@ -80,6 +76,18 @@ services:
       - ./.docker/dbdata:/var/lib/mysql
     networks:
       - app-network
+    healthcheck:
+      # healthcheck->test
+      # qual comando será executado pra garantir que este serviço
+      # esteja funcionando
+      test: ["CMD-SHELL", 'mysql -uroot --database=laravel --password=root --execute="SELECT count(table_name) > 0 FROM information_schema.tables;" --skip-column-names -B']
+      # se der problema no comando acima, vamos fazer uma retentativa
+      # deste mesmo comando apos 10s, num timeout de 10s por 4 vezes
+      interval: 10s
+      timeout: 10s
+      retries: 4
+      # se tudo estiver funcionando,
+      # este serviço será considerado saudável
 
   redis:
     image: redis:alpine
