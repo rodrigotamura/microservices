@@ -24,7 +24,7 @@ WORKDIR /var/www
 RUN rm -rf /var/www/html
 
 # copiando todo o conteudo do Laravel para a pasta publica do PHPFPM
-COPY . /var/www
+# COPY . /var/www
 
 # Instalando o Composer
 RUN curl -s https://getcomposer.org/installer | php && \
@@ -35,14 +35,14 @@ RUN whoami && \
 
 
 # Iniciando o Laravel
-RUN composer install && \
-            cp .env.example .env && \
-            php artisan key:generate && \
-            php artisan config:cache
+# RUN composer install && \
+#             cp .env.example .env && \
+#             php artisan key:generate && \
+#             php artisan config:cache
 
 # Corrigindo um problema de permissao que ocorre
-RUN chown -R www-data:www-data * && \
-    php artisan key:generate
+# RUN chown -R www-data:www-data * && \
+#     php artisan key:generate
 
 # Criando um link simbolico da pasta /var/www/public (do Laravel)
 # para /var/www/html (que é a pasta pública do PHP FPM).

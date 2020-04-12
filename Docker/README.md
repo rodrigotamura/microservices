@@ -693,3 +693,63 @@ Execute o seguinte comando de permissão para sanar esse erro (dentro da pasta l
 Ao subir novamente os serviços e visualizar os logs do *app*, você verá que as migrações rodaram com sucesso:
 
 ![Dockerize and Migrations](dockerize-migrations.png)
+
+### Trabalhando com Templates
+
+Se abrirmos o arquivo [.env](./laravel/.env) da nossa aplicação Laravel, você verá que os valores das variáveis de ambiente estão estáticos. **Mas como poderemos deixá-los dinâmicos** para que possamos preparar o nosso container para ser utilizado em ambientes distintos sem a necessidade de ficarmos reconfigurando-o?
+
+#### Gerando templates com o Dockerize
+
+Isso mesmo, o Dockerize pode nos ajudar neste quesito resolvendo atraves de **[templates](https://github.com/jwilder/dockerize#using-templates)**. Vamos primeiramente criar a pasta [./laravel/.docker/app](./laravel/.docker/app), que conterá arquivos referentes ao *app*.
+
+Logo após vamos copiar o arquivo [.env](./laravel/.env) para dentro desta pasta.
+
+Neste caso, vamos deixar os valores referentes à conexão com o banco de dados de forma dinâmica, atribuindo da seguinte forma entre chaves duplas:
+
+```
+DB_CONNECTION=mysql
+DB_HOST={{ .Env.DB_HOST }}
+DB_PORT=3306
+DB_DATABASE={{ .Env.DB_DATABASE }}
+DB_USERNAME={{ .Env.DB_USERNAME }}
+DB_PASSWORD={{ .Env.DB_PASSWORD }}
+```
+
+Logo após, vamos alterar a entrada do `entrypoint` no arquivo [docker-compose.yaml](./laravel/docker-compose.yaml) da seguinte forma:
+
+```
+app:                      👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇
+    entrypoint: dockerize -template ./.docker/app/.env:.env -wait tcp://db:3306 -timeout 40s ./.docker/entrypoint.sh
+```
+
+Ou seja, `-template <origem.env>:<para-onde-vai-o.env>`
+
+Agora, **para setar as variáveis de ambiente** adicionaremos abaixo do `entrypoint` o seguinte:
+
+```
+app:
+    entrypoint: [...]
+    environment: 
+      - DB_HOST=db
+      - DB_DATABASE=laravel
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+```
+
+Agora, para testarmos, vamos apagar o arquivo `./laravel.env` e subir os containers via `docker-compose up -d`. Se der tudo certo, o arquivo `.env` será criado com as configurações que configuramos.
+
+Portanto, através deste recurso do Dockerize, podemos aplicar *templates* em qualquer situação.
+
+#### Problemas com a pasta vendor do Laravel
+
+Vamos supor que acabamos de clonar esta aplicação (não haverá o arquivo `./laravel/.env`, nem o `./laravel/.docker/dbdata` e nem o `./laravel/vendor`).
+
+E o nosso desejo é que, ao executarmos o comando `docker-compose up -d` todos os seerviços da nossa ãplicação estejam funciondo perfeitamente. Ou seja, não precisa-se fazer mais nada.
+
+Você perceberá, olhando nos logs do *app*, que houveram problemas no `autoload` do Laravel, pois a pasta `vendor` ainda não existe.
+
+Vamos transferir do [Dockerfile](./laravel/Dockerfile) para o nosso [entrypoint.sh](./laravel/.docker/entrypoint.sh) os seguintes comandos:
+
+- Instalação das dependências via Composer;
+- Atribuição de permissão para www-data;
+- Geração da key do Laravel.

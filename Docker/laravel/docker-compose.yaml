@@ -15,7 +15,12 @@ services:
     # quando for criado. E tanto o nome do serviço como o nome do container,
     # se forem diferentes, serão os hosts deste serviço (teste com o ping)
     container_name: app
-    entrypoint: dockerize -wait tcp://db:3306 -timeout 40s ./.docker/entrypoint.sh
+    entrypoint: dockerize -template ./.docker/app/.env:.env -wait tcp://db:3306 -timeout 40s ./.docker/entrypoint.sh
+    environment:
+      - DB_HOST=db
+      - DB_DATABASE=laravel
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
     volumes:
       - .:/var/www
     # quais serviços este serviço depende
