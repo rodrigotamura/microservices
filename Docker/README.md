@@ -606,3 +606,90 @@ Para utilizá-lo precisamos instalar o Dockerize para dentro da imagem. [Clique 
 
 Agora vamos subir os serviços com o comando `docker-compose up -d --build` (o `--build` serve para fazer o rebuild da imagem a partir do Dockerfile que alteramos).
 
+#### Pode acontecer o seguinte erro...
+
+No momento que você tentar subir os serviços via Docker Compose e aparecer o seguinte erro - estou utilizando neste caso o Ubuntu:
+
+```
+Couldn’t connect to Docker daemon at http+docker://localunixsocket — is it running?
+```
+
+Isso pode ser algum erro nas permissões nos arquivos envolvidos durante a criação dos coantainers. No caso deste projeto basta dar o seguinte comando para atribuir ao usuário o *ownership*: `sudo chown -R ${USER}:${USER} laravel` (neste caso a pasta `laravel` possui o docker-compose.yaml).
+
+#### Operando o Dockerize
+
+Vamos entrar no nosso container de aplicação via `docker exec -it laravel bash`.
+
+Logo após, de dentro do container, vamos executar o comando `dockerize` para verificar se o Dockerize foi instalado com sucesso.
+
+Agora, para testar o recurso do Dockerize para **aguardar serviços em um protocolo especificado (arquivo, tcp, tcp4, tcp6, http, https e unix) antes de iniciar seu aplicativo**, neste caso o container *app* aguardar pelo serviço de banco de dados - container *db* - vamos executar o seguinte comando de dentro do container de *app*: `dockerize -wait tcp://db:3306`, que, caso o serviço de banco de dados estiver rodando e conectável retornará a seguinte mensagem:
+
+```
+bash-4.4# dockerize -wait tcp://db:3306
+2020/04/12 17:18:48 Waiting for: tcp://db:3306
+2020/04/12 17:18:48 Connected to tcp://db:3306
+```
+Agora, pelo nosso *docker-compose.yaml*, vamos fazer com que não exista o container de db. Após subir todos os serviços - exceto o *db* -, entrarmos no container *app* e rodarmos o comando `dockerize -wait tcp://db:3306`, você vai perceber que haverão retentativas de conexão. **Perceba que ele tentará por 10 segundos (timeout)**, ou seja, a tentativa não é ilimitada.
+
+Problema que se o banco de dados estiver disponível somente após 10 segundos e poderá ocorrer algum problema no levantamento do container de *app*. Para isso **vamos configurar o _timeout_ padrão**: `dockerize -wait tcp://db:3306 -timeout 20s` (neste caso haver'ao 20 segundos de retentativas).
+
+#### Configurando a espera da dependência
+
+O grande ponto para fazermos funcionar o Dockerize na configuração é que temos que substituir o *entrypoint*.
+
+> ENTRYPOINT é o comando que será executado quando o container subir, e é um comando que tem que estar rodando o tempo inteiro, pois se ele roda e sair logo o container cai também.
+
+Abramos o arquivo [docker-compose.yaml](./laravel/docker-compose.yaml) e vamos adicionar um intem no *app* chamado `entrypoint` (favor abrir o aruqivo [docker-compose.yaml](./laravel/docker-compose.yaml) para maiores informações) da seguinte forma:
+
+```
+app:
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 40s
+```
+
+Porém, além deste comando que inserimos do Dockerize, temos que também adicionar o comando para deixarmos o container rodando (pois neste caso estaremos substituindo o ENTRYPOINT configurado no Dockerfile deste serviço). Temos que copiar o comando do ENTRYPOINT do arquivo [Dockerfile](./laravel/Dockerfile) e adicionar no `entrypoint` do [docker-compose.yaml](./laravel/docker-compose.yaml) ficando da seguinte forma:
+
+```
+app:                                                         👇
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 40s php-fpm
+```
+
+Ao subir via `docker-compose`, e listar os containers que estiverem rodando, você verá o container do *app* com o seguinte ENTRYPOINT:
+
+![Dockerize Entrypoint](./dockerize-running.png)
+
+Agora, vamos verificar se o Dockerize realmente está fazendo com o que o container *app* inicialize somente quando o container *db* estiver no ar.
+
+Páre todos os containers via `docker-compose down`, e remova o diretório do banco de dados (./laravel/.docker/dbdata). Experimente subir os servi;os via `docker-compose up -d`, e logo após execute o comando para verificar os logs do *app*:
+
+`docker logs app` 
+
+Você perceberá que o `php-fpm` somente foi executado quando o serviço de *db* ficou no ar via Dockerize:
+
+![Dockerize Verifying](./dockerize-verify.png)
+
+Portanto, esta configuração do Dockerize foi fundamental para que o serviço de *app* rodasse apenas quando o *db* estivesse no ar.
+
+#### Aperfeiçoando o ENTRYPOINT
+
+E se quisermos que a migração do banco de dados via `php artisan migrate` seja executado de forma automática na criação do container e somente após o container *db* estiver no ar? Para isso vamos **criar um arquivo separado de ENTRYPOINT**!
+
+Vamos criar o arquivo [./laravel/.docker/entrypoint.sh](./laravel/.docker/entrypoint.sh) (abra-o para ver mais detalhessobre esta implementação).
+
+Logo após, vamos alterar a entrada do `entrypoint` no arquivo [docker-compose.yaml](./laravel/docker-compose.yaml) da seguinte forma:
+
+```
+app:                                                                  👇
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 40s ./.docker/entrypoint.sh
+```
+
+Você vai perceber que após a criação dos containers via `docker-compose up -d` o *app* caiu. E, ao verificar nos logs via `docker logs app` haverá um erro no final:
+
+`Error starting command: ./.docker/entrypoint.sh - fork/exec ./.docker/entrypoint.sh: permission denied`
+
+Execute o seguinte comando de permissão para sanar esse erro (dentro da pasta laravel):
+
+`chmod +x .docker/entrypoint.sh`
+
+Ao subir novamente os serviços e visualizar os logs do *app*, você verá que as migrações rodaram com sucesso:
+
+![Dockerize and Migrations](dockerize-migrations.png)
