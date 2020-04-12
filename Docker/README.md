@@ -753,3 +753,38 @@ Vamos transferir do [Dockerfile](./laravel/Dockerfile) para o nosso [entrypoint.
 - Instalação das dependências via Composer;
 - Atribuição de permissão para www-data;
 - Geração da key do Laravel.
+
+### Otimização das Imagens
+
+Quando queremos utilizar uma imagem do Docker para realizar nosso desenvolvimento e dermos um *build* na mesma, acontece que acabamos subindo muitas coisas desnecessárias quando ela vai para produção.
+
+> Quanto maior a imagem, pior. Pior em questão do próprio tamanho e pior por causa da grande possibilidade de haverem vulnerabilidades na segurança. Ou seja, QUANTO MAIS ENXUTO A IMAGEM, MELHOR!
+
+Por exemplo, nas imagens com o **Linux Alpine** já vêm de forma bem enxuta.
+
+Vamos supor que o Dockerfile de nossa imagem instalamos o NPM e o NodeJS. Quando fizermos o *build* de nossa imagem você terá que entrar no container de aplicação e rodar o comando `npm install` para instalar as dependências. Até aqui tudo bem.
+
+Agora vamos supor que queremos "fechar" esta imagem para a produção. Mas, ao mesmo tempo, eu não quero que vá para a produção vá com o Bash, NPM, NodeJS, Composer, etc. Como podemos fazer neste caso? 
+
+O que vamos abordar aqui é sobre **MULTI-STAGING BUILD**. Nós fazemos o processo de building do Dockerfile em duas etapas:
+
+1. Instala e configura como estamos fazendo até o momento;
+2. Baixa uma nova imagem e simplesmente copia o que foi gerado da imagem anterior mas sem instalar as coisas ndesnecessárias.
+
+#### Mão na massa...
+
+Vamos copiar a partir do arquivo [Dockerfile](./laravel/Dockerfile) para o arquivo [Dockerfile.prod](./laravel/Dockerfile.prod) que será utilizado em produção.
+
+Agora, vamos chamar de `build` a primeira etapa. Vamos fazer toda a criação e a configuração, como se estivéssemos criando para trabalhar em um ambiente de desenvolvimento.
+
+Logo após vamos para o próximo estágio, criando uma outra imagem com um outro `FROM`, porém sem instalar o Composer, NPM, etc., ou seja, a imagem LIMPA, somente o necessário para rodar a aplicação, e finalmente copiando os arquivos que foram gerados no primeiro estágio chamado `build`, que já vai conter os arquivos necessários para rodar a aplicação sem precisar instalar as dependÇencias (porque elas já foram instaladas no primeiro estágio). 
+
+Vamos fazer o teste gerando a imagem de produção através do comando `docker build -t rodrigotamura/laravel-optimized -f Dokcerfile.prod .`
+
+Note que a imagem foi criada através da listagem de imagens:
+
+![Prod Image](image-prod.png)
+
+Agora vamos criar o container a partir desta imagem: `docker run --name laravel -d rodrigotamura/laravel-optimized`
+
+Se tentarmos acessar o container criado através do `docker exec -it laravel bash` retornará um erro pois neste container não possui instalado o `bash`, pois é uma imagem limpa para uso em produção. E se executarmos o comando `docker exec -it laravel ls` você notará que as pastas `node_modules` e `vendor` estarão disponíveis!

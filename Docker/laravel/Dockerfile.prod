@@ -1,4 +1,4 @@
-FROM php:7-fpm-alpine3.9
+FROM php:7-fpm-alpine3.9 as builder
 
 # Instalando o bash, mysql
 # Logo apos adicionando a extensao para o PHP se comunicar com o MySQL
@@ -14,17 +14,11 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 ### Fim declaração Dockerize
 
-# Geralmente a porta 9000 esát disponível para o PHP FPM
-EXPOSE 8000
-
 # Os comandos RUN abaixo serao executados de dentro do /var/www
 WORKDIR /var/www
 
 # Removendo todo o conteúdo padrão
 RUN rm -rf /var/www/html
-
-# copiando todo o conteudo do Laravel para a pasta publica do PHPFPM
-# COPY . /var/www
 
 # Instalando o Composer
 RUN curl -s https://getcomposer.org/installer | php && \
@@ -32,13 +26,6 @@ RUN curl -s https://getcomposer.org/installer | php && \
 
 RUN whoami && \
     groups $(whoami)
-
-
-# Iniciando o Laravel
-# RUN composer install && \
-#             cp .env.example .env && \
-#             php artisan key:generate && \
-#             php artisan config:cache
 
 # Corrigindo um problema de permissao que ocorre
 # RUN chown -R www-data:www-data * && \
@@ -49,6 +36,38 @@ RUN whoami && \
 # Ou seja, toda vez que estiverem acessando a pasta html
 # na realidade estao acessando a pasta public, tipo um redirecionamento
 RUN ln -s public html
+
+# copiando todo o conteudo do Laravel para a pasta publica do PHPFPM
+COPY . /var/www
+
+# Iniciando o Laravel
+RUN composer install \
+            && php artisan key:generate \
+            && php artisan cache:clear \
+            && chmod -R 775 storage
+
+# Instalando dependencias via NPM
+RUN npm install
+
+##################################################################
+#### AQUI QUE VEM A PRINCIPAL ALTERACAO PARA AMBIENTE EM PROD ####
+##################################################################
+
+FROM php:7-fpm-alpine3.9
+RUN apk add --no-cache mysql-client
+RUN docker-php-ext-install pdo pdo_mysql
+WORKDIR /var/www
+RUN rm -rf /var/www/html
+
+# copia da primeira ação que foi executado lá em cima e que chamamos de
+# builder que gerou os arquivos /var/www para o diretorio atual, que
+# seria o /var/www
+COPY --from=builder /var/www .
+
+###################### FIM #######################################
+
+# Geralmente a porta 9000 esát disponível para o PHP FPM
+EXPOSE 8000
 
 # O comando abaixo matera o servidor rodando
 ENTRYPOINT ["php-fpm"]
