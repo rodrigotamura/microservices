@@ -175,3 +175,55 @@ Portanto aqui mostramos que existe a abordagem de estar trabalhando em um monoli
 - Necessidade de escalar todo o sistema pelo fato de uma área em específico esteja com pico de utilização;
 - Risco de um deploy completo começa a se elevar, pois quanto maior a aplicação mais crítica ela se torna. Fica aquele medo: se eu fizer um redeploy de minha aplicação, só por causa de uma pequena alteração de uma área, quem sabe, quase não tão utilizada, e cair tudo? 😨
 - Necessidade de utilizar tecnologias diferentes.
+
+# Microserviços
+
+## O que é um serviço?
+
+- Disponibiliza informação
+- Realiza transações
+- Resolve problemas de negócio
+- Independente de tecnologia ou produto
+- Pode estabelecer comunicação entre diversos "clientes" (sistemas, pessoas, ou qualquer coisa que se conecta neste serviço)
+
+## SOA - Arquitetura Orientada a Serviços
+
+![SOA](soa.png)
+
+Em SOA:
+
+- Serviços normalmente maiores baseados em funcionalidades;
+- Necessidade de ESB (acima temos um esquema que representam vários sistemas e usuários que se conectam no **Enterprise Service Bus - ESB**, que por sua vez fará todo o roteamento dos serviços adequados para cada solicitação);
+- SOA é conhecido como **Single Point of Failure**, ou seja, podemos ter vaŕios serviços, e se o ESB todos os sistemas caem. Portanto, todos dependem do ESB;
+- Compartilhamento de banco de dados é comum;
+- Muitas vezes também podem ter sistemas monolíticos sendo utilizados como serviços.
+
+## Arquitetura baseada em microsserviços
+
+![Microservices](microservices-schema.png)
+
+Podemos ver que não existe um poder centralizados (diferente da arquitetura tipo SOA que possui o ESB como pivô de toda a aplicação). Os serviços eles se comunicam e consomem entre si. Algumas peculiaridades podem ser destacadas, como cada serviço possui um banco de dados. Veja mais algumas características:
+
+- Serviços pequenos com poucas responsabilidades;
+- Maior tolerância a falhas, como nos microsserviços trabalham de forma descentralizadas, se um microsserviço cair não significará que todo o sistema ficará fora do ar, somente funcionalidades que pertencem a este microsserviço;
+- Totalmente independente, ou seja, um microsserviço consegue resolver os seus próprios problemas, pois possui seu próprio banco de dados, infraestrutura, deploy, etc.;
+- Comunicação síncrona ou assíncrona. 
+    - Muitos microsserviços precisam em tempo real conseguir retirar ou processar uma informação em outro serviço. Quando isso acontece em tempo real, ou seja, eu preciso mandar uma requisição e receber uma resposta imediatamente, agente fala que esse tipo de comunicação é **síncrona**. 
+    - Agora agente tem alguns pontos na parte de comunicação entre microsserviços que chamamos de comunicação **assíncrona**, onde muitas vezes mandamos uma informação para ser processada, e essa transação ficará em _background_ processando dentro do microsserviço por algum tempo e, quando tiver concluído, ele notificará o outro microsserviço.
+
+## Microsserviços não são para todas as situações
+
+Os microsserviços devem ser utilizados de forma responsável para que não haja um compromentimento negativo aos nossos trabalhos.
+
+Temos que levar em consideração de algumas premissas ao utilizarmos os microsserviços:
+
+- Arquitetura complexa, afinal, não teremos mais apenas um sistema para administrar, mas sim teremos vários e com estruturas próprias;
+- Custo mais elevado com infraestrutura;
+- Necessidade de mais equipes para manter;
+- Sistema precisa ser grande suficiente para justificar;
+- Gera problema que normalmente você não tinha antes;
+- Monitoramento complexo.
+
+> ❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗
+> **Microsserviço não é moda, mas sim necessidade!**
+> ❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗
