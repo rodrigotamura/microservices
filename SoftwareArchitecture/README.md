@@ -227,3 +227,34 @@ Temos que levar em consideração de algumas premissas ao utilizarmos os micross
 > ❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗
 > **Microsserviço não é moda, mas sim necessidade!**
 > ❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗❗
+
+## Orientação a Negócios
+
+Agora vamos pegar todos os conceitos sobre microsserviços e separarmos em 9 características segundo **Martin Fowler**:
+
+![Microservices according to Martin Fowler](microservices-martin-fowler.png)
+
+### Componentização via serviços
+
+- Services dos microsserviços não são as camadas de services da Orientação a Objetos;
+- Componente é uma unidade de software independente que pode ser substituída e atualizada;
+
+##### Desvantagens:
+
+- Chamadas externas são mais custosas do que chamadas locais. Num sistema monolito a chamada para algum recurso se dá internamente de forma muito rápida - muitas vezes síncrona. Já microsserviços necessitam realizar seus processos consumindo ou servindo outros microsserviços que estarão em outra infraestrutura.
+- Cruzamento entre componentes podem se tornar complexo;
+- Transações entre serviços são "grandes desafios";
+- Mudanças bruscas em regras de negócio podem afetar diversos serviços tornando o processo difícil de ser refeito
+
+### Organização em torno do negócio
+
+- Um projeto é baseado em um ou mais produtos que trabalham em diferentes contextos, ou seja, temos que ver cada microsserviço como um produto pensando no negócio, e não na parte técnica;
+- Time de desenvolvedores por produto;
+- Muitas empresas tratam os times como *squads*;
+- Cada *squad* é muitidisciplinar;
+- Cada *squad* é responsável por um ou mais produtos (não muito recomendado ser muitos produtos);
+- Cada produto pode ter um ou mais serviços envolvidos (e.g. sistema de *checkout* de uma loja virtual, que pode ter microsserviços responsáveis pelo gerenciamento de produtos, *shipping*, etc.);
+
+![Squads](squads.png)
+
+O esquema acima representa dois *squads* para cada área de negócio, mas não um sistema em si. Lembrando que um sistema é o resultado final de um produto que será entregue ao cliente, e às vezes este produto precisa de alguns sistemas juntos. MAS SEMPRE PENSANDO O LADO DO NEGÓCIO.
