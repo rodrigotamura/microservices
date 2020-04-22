@@ -299,3 +299,12 @@ Se um serviço sair fora do ar, o que deverá acontecer com àqueles que depende
 - Produtos bem definidos podem evoluir ou serem extintos por razões de negócio, ou seja, a área de negócios não podem atrapalhar a área técnica e vice-versa;
 - Gerenciamento de versões (o lançamento de uma nova versão não podem "quebrar" o fluxo de serviços que estão usando a versão antiga);
 - Replacement and Upgradeability, ou seja, substituição rápida de um serviço por outro ou fazer rapidamente o upgrade de um serviço, sem comprometer quem estiver utilizando naquele exato momento.
+
+## API Gateways
+
+>  "Uma API Gateway recebe todas as chamadas APIs dos clientes e então as roteia para os microsserviços correspondentes." (nginx.com)
+
+Em alguns casos ela também é responsável por realizar processos de verificação de segurança, como autenticação e autorização.
+
+![API Gateway](api-gateway.png)
+
