@@ -234,7 +234,7 @@ Agora vamos pegar todos os conceitos sobre microsserviços e separarmos em 9 car
 
 ![Microservices according to Martin Fowler](microservices-martin-fowler.png)
 
-### Componentização via serviços
+### Microsserviços - Componentização via serviços
 
 - Services dos microsserviços não são as camadas de services da Orientação a Objetos;
 - Componente é uma unidade de software independente que pode ser substituída e atualizada;
@@ -246,7 +246,7 @@ Agora vamos pegar todos os conceitos sobre microsserviços e separarmos em 9 car
 - Transações entre serviços são "grandes desafios";
 - Mudanças bruscas em regras de negócio podem afetar diversos serviços tornando o processo difícil de ser refeito
 
-### Organização em torno do negócio
+### Microsserviços - Organização em torno do negócio
 
 - Um projeto é baseado em um ou mais produtos que trabalham em diferentes contextos, ou seja, temos que ver cada microsserviço como um produto pensando no negócio, e não na parte técnica;
 - Time de desenvolvedores por produto;
@@ -258,3 +258,44 @@ Agora vamos pegar todos os conceitos sobre microsserviços e separarmos em 9 car
 ![Squads](squads.png)
 
 O esquema acima representa dois *squads* para cada área de negócio, mas não um sistema em si. Lembrando que um sistema é o resultado final de um produto que será entregue ao cliente, e às vezes este produto precisa de alguns sistemas juntos. MAS SEMPRE PENSANDO O LADO DO NEGÓCIO.
+
+### Microsserviços - Smart endpoints & dumb pipes
+
+- Exposição de APIs (ex.: REST, GraphQL);
+- Comunicação entre serviços de forma síncrona ou assíncrona;
+- Utilização de sistema de mensageria (ex: RabbitMQ). O sistema de mensageria não tem lógica, pois ele somente entrega e recebe as mensagens, nada mais;
+- Garantia de que um serviço foi executado baseado na execução das filas. Quando um serviço cai, é muito importnate que ele retome de onde parou, portanto o uso de filas facilita bastante este processo;
+
+### Microsserviços - Governança Descentralizada
+
+A forma que iremos gerenciar toda estea estrutura, desde a documentação, softwares, banco de dados, SLA é totalmente descentralizado, ou seja, cada serviço tem as suas próprias regras.
+
+- Ferramenta certa para o trabalho certo. Tecnologias podem ser definidas baseadas na necessidade do produto;
+- Cada sreviço pode ter a sua própria metodologia e padrões de desenvolvimento em suas squads, levando em consideração em aplicar a tecnologia certa no lugar certo, e não ficar utilizando variadas tecnologias em variados projetos sem necessidade;
+- Contratos de interface de forma independente, ou seja, o serviço e meu e eu defino como será a comunicação para com ele.
+
+### Microsserviços - Automação de Infraestrutura
+
+Para agregar qualidade, temos que disponibilizar de forma rápida novas versões do aplicativo, testes, deploys, etc. Se tivermos muitos microsserviços e não conseguirmos jogar para produção rapidamente será um grande problema.
+
+- Utilização de Cloud computing;
+- Testes automatizados;
+- Continuous delivery;
+- Continuous integration;
+- Load Balancer / Autoscaling, pois temos que garantir que não haja intermitências ou lentidão na aplicação em eventuais picos de uso ou sobrecarga.
+
+### Microsserviços - Desenhado para Falhar
+
+Se um serviço sair fora do ar, o que deverá acontecer com àqueles que dependem dele? Temos então que desenhar um plano de *fallback* para degradar a funcionalidade faltante. Exemplo: usuário preenche campo de CEP para autocompletagem dos campos de endereço - logradouro, cidade, UF -, porém o serviço dos Correios está fora do ar. Para DEGRADAR A FUNCIONALIDADE não é interessante retornar um erro para o usuário, mas sim deixar o usuário preencher manualmente os campos, ou seja, criando um plano B.
+
+- Tolerância a falhas;
+- Serviços que se comunicam precisam de *fallback*;
+- Logging;
+- Monitoramento em tempo real (pior coisa é o cliente descobrir que a aplicação dele caiu ANTES de você);
+- Alarmes;
+
+### Microsserviços - Design Evolutivo
+
+- Produtos bem definidos podem evoluir ou serem extintos por razões de negócio, ou seja, a área de negócios não podem atrapalhar a área técnica e vice-versa;
+- Gerenciamento de versões (o lançamento de uma nova versão não podem "quebrar" o fluxo de serviços que estão usando a versão antiga);
+- Replacement and Upgradeability, ou seja, substituição rápida de um serviço por outro ou fazer rapidamente o upgrade de um serviço, sem comprometer quem estiver utilizando naquele exato momento.
