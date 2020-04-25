@@ -69,7 +69,7 @@ Como a *branch master* deve receber a correção IMEDIATAMENTE, o *merge* da *br
 
 Existe uma opção que pode ser aplicada em um projeto para facilitar o trabalho no Git utilizando a metodologia Gitflow. Salienta-se que não é algo essencial para se trabalhar com a metodologia, sendo que é totalmente viável a aplicação do Gitflow sem o uso desta extensão.
 
-Temos que primeiramente instalar a extensão do Git-flow na máquina. No caso do Ubuntu 18.04: `sudo apt-get install -y git-flow`
+Temos que primeiramente instalar a extensão do Git-flow na máquina. Acesse este [link](https://github.com/nvie/gitflow/wiki/Installation) e siga as instruções da instalação para o seu sistema operacional.
 
 Somente inicialize o Git no seu projeto desta forma: `git flow init`.
 
@@ -77,12 +77,41 @@ Abaixo vamos exemplificar o trabalho com o Git-flow:
 
 Para a **Feature**:
 - Início da nova funcionalidade: `git flow feature start feature/register`;
+- Realiza-se o *commit* normalmente: `git add . && git commit -m "Mensagem"`;
 - Encerra desevnolvimento de nova funcionalidade: `git flow feature finish feature/register`.
 
 Para a **Release**:
 - Criando a *branch release*: `git flow release start 1.0.0`;
-- Fechando a *branch release* e realizando *merge* na *master*: `git flow release finish '1.0.0'`.
+- Fechando a *branch release* e realizando *merge* na *master*: `git flow release finish '1.0.0'`. Nesta etapa o Git-flow irá solicitar uma descrição para o *merge* e logo após será criada automaticamente a *tag* para esta versão, onde será necessário informar a descrição desta *tag* de *release*.
 
 Para o *Hotfix*:
 - Criando a *branch hotfix*: `git flow hotfix start hotfix/recurso`;
-- Após finalizar o desenvolvimento da correção: `git flow hotfix finish hotfix/recurso`. Esse comanda já executará o *merge* tanto no *master* como no *develop*.
+- Após finalizar o desenvolvimento da correção, realizar o `git commit -am "mensagem"` para realizar o *commit*, e logo após: `git flow hotfix finish hotfix/recurso`. Esse comanda já executará o *merge* tanto no *master* como no *develop*. Será solicitada a mensagem para o *merge*, logo após será gerada uma nova *tag*, aonde devemos informar uma descrição, e finalmente será solicitada uma descrição para o *merge* na *branch develop*.
+- Cabe salientar que o nome dado ao *hotfix* deve ser já a nova versão, pois ao finalizar o Git-flow para este, será gerada uma *tag* exatamente com o nome do *hotfix* que informamos, neste caso a versão correta: `git flow hotfix start 0.1.1`;
+- Outra importante informação é que, caso estejamos na *branch develop* e criarmos um *hotfix* via Git-flow, o mesmo será criado **a partir da _branch master_**, e não da *branch develop*. Ou seja, **o hotfix trabalha em cima do código em PRODUÇÃO**.
+
+## SEMVER - Semantic Versioning
+
+Aplicado na maioria das aplicações hoje em dia, se dá pelo seguinte formato:
+
+![SEMVER](semver.png)
+
+- Major: Cada nova versão incrementada é INCOMPATÍVEL com a versão anterior;
+- Minor: Novos recursos implementados, mas sem comprometer com a compatibilidade;
+- Patch: Correções de *bugs*.
+
+Importante notar que na *semantic versioning*:
+
+- Não pode possuir números negativos;
+- Uma vez que a versão é gerada, não é possível mais fazer modificações;
+- *Major* que comece com 0.x.y é publicamente instável e compatibilidades podem ser quebradas.
+
+Tipos de metadados em versões:
+
+- **alpha**: em desenvolvimento, sem se preocupar com testes unitários antigos;
+- **beta**: em desenvolvimento, mas os testes unitários antigos são válidos ou considerados;
+- **rc1**: RC significa *release candidate*, testes de novas funcionalidades estão válidos e a equipe já está realizando testes mais profundos;
+- **rc2**: mais testes devem ser criados;
+- **rc3**: mais testes....
+
+O SEMVER se encaixa da seguinte forma com o metadado: **1.0.1-alpha, 2,4,1-alpha.1***
