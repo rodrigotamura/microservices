@@ -302,9 +302,49 @@ Se um serviço sair fora do ar, o que deverá acontecer com àqueles que depende
 
 ## API Gateways
 
+É um padrão para facilitar o processo de implementação de microsserviços.
+
 >  "Uma API Gateway recebe todas as chamadas APIs dos clientes e então as roteia para os microsserviços correspondentes." (nginx.com)
 
 Em alguns casos ela também é responsável por realizar processos de verificação de segurança, como autenticação e autorização.
 
 ![API Gateway](api-gateway.png)
 
+## Service Discovery
+
+É um padrão para facilitar o processo de implementação de microsserviços.
+
+Processo de SERVICE DISCOVERY é responsável por prover mecanismos de identificação dos serviços disponíveis e suas instâncias.
+
+Uma vez que o API Gateway encaminha uma requisição para um determinado serviço, às vezes este serviço possui várias instâncias ou diversas máquinas. Vamos supor que o nosso serviço possui 3 nodes, para qual node o API Gateway deve enviar?
+
+Vamos ao seguinte problema, onde o cliente vai acessar um serviço que está escalado em três nodes. Mas para qual node o cliente acessará? Quem decidirá isso?
+
+![Service Discovery Problem](service-discovery-problem.png)
+
+O Service Discovery possui duas partes principais: o **Cliente Side** e **Server Side**.
+
+#### Client Side
+
+![Client Side](service-discovery-client.png)
+
+Temos um recurso chamado **Service Registry**, que registra cada node (nome do serviço, característica, porta, IP, protocolo, etc.) ele será consultado pelo cliente para saber em qual node será utilizado. Após isso, o cliente consumirá o node indicado pelo Service Registry.
+
+> Inclusive alguns Services Registries fazem o teste de *health check*.
+
+#### Server Side
+
+![Server Side](service-discovery-server.png)
+
+No caso do **Server Side**, não é mais responsabilidade do cliente saber qual serviço buscar, ficando a responsabilidade para os servidor (neste caso quem está servindo a ãplicação e não quem está consumindo). Neste caso o **Load Balancer** possui um papel importante para rotear de acordo com a carga. Porém o Load Balancer ainda necessita do **Service Registry** para ter conhecimento, ou o mapeamento, dos serviços e seus respectivos nós.
+
+Neste caso API Gateway cai no Load Balancer que lê o Service Registry que está registrado no Service Discovery e depois manda ele para lá.
+
+#### Ferramentas de Service Discovery
+
+- Netflix Eureka (facilitado para trabalhar com Java)
+- Consul (em Golang)
+- Etcd
+- ZooKeeper 
+
+Para quem já trabalha com Kubernetes não há necessidade de se preocupar com o Service Discovery, pois ele já vai fazer por si só a descoberta dos PODs disponíveis.
