@@ -92,7 +92,7 @@ Para o *Hotfix*:
 
 ## SEMVER - Semantic Versioning
 
-Aplicado na maioria das aplicações hoje em dia, se dá pelo seguinte formato:
+Controle de versão aplicado na maioria das aplicações hoje em dia, se dá pelo seguinte formato:
 
 ![SEMVER](semver.png)
 
