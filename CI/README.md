@@ -94,3 +94,33 @@ Você notará nos logs que haverão erros de que não está encontrando a imagem
 ![Google Cloud Build run trigger error](gcb-trigger-logs-error.png)
 
 O Docker compose precisa ser instalado para que consigamos trabalhar com ele. No próximo tópico iremos realizar esta instalação.
+
+### Entendendo a instalação do Docker
+
+Vimos que houve um erro no tópico anterior quando tentarmos criar o primeiro passo da pipeline no GCB. Aconteceu que ao instalar o Docker compose através do endereço do Google Cloud Registry que informamos no [cloudbuild.yaml](../Docker/laravel/.docker/cloudbuild.yaml) não foi encontrado nada.
+
+Agora vamos aprender a como criar uma nova imagem do Docker Compose e colocar lá dentro do Container Registry, dentro do Google Cloud.
+
+Toda vez que estamos trabalhando com o Docker Hub, todas as nossas imagens ficam gravadas lá. NEste nosso caso, tudo o que agente for gravar, ficará gravado no Container Registry do GCP, que é **totalmente privado e somente usuários que autorizamos terão acesso**.
+
+A partir deste momento nós precisaremos realizar o *build* da imagem do Docker Compose para colocá-lo dentro do Container Registry.
+
+Portanto, temos que entender dois pontos importantes.
+
+1. Dentro do Container Registry do GCP há um container aberto para todo mundo.E lá dentro tem, por exemplo, o Docker, Git, Go, Dockerize, etc. Então toda vez que quisermos utilizar o Google Cloud Build podemos chamar o endereço **_gcr.io/cloud-builders/Docker_** para, por exemplo, executar o Docker; ou **_gcr.io/cloud-builders/git_** para executar o Git.
+
+2. Porém existirão imagens que não estarão disponíveis, como o Docker Compose, no nosso caso.
+
+Para isso temos que colocar o Docker Compose dentro do nosso Container Registry (**_gcr.io/$PROJECT_ID_** (codeeducation-test)) que não é público.
+
+A ideia é nós termos um Dockerfile, e dentro dele instalarmos o Docker Compose e chamar o *entrypoint* para o Docker Compose. Assim, todas as vezes que a imagem for chamada ela já vai executar o Docker Compose.
+
+Logo após, vamos criar o cloudbuild.yaml e nós vamos **utilizar o Docker do gcr.io/cloud-builders/**, e depois **gerar um _build_ a partir do Dockerfile** e esse Dockerfile irá realizar o *build* do Docker Compose.
+
+Uma vez que tenho o Docker Compose, vamos dar o push da imagem no **_gcr.io/$PROJECT_ID_** (codeeducation-test).
+
+Visão geral da instalação do Dokcer Compose:
+
+![Docker Compose installation on GCP](docker-compose-gcp.png)
+
+O interessante é que isso será feito somente uma vez, podendo ser usado outras vezes.
