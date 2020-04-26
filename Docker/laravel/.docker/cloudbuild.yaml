@@ -1,0 +1,11 @@
+# indica quais são os passos
+steps:
+
+# identificação do passo
+- id: "Rodando docker-compose"
+  # informar qual a imagem que o Docker tem pra ele rodar o Docker compose
+  # $PROJECT_ID ira puxar o id que esta configurado no projeto, neste caso codeeducation-test
+  name: "gcr.io/$PROJECT_ID/docker-compose"
+  # quais argumentos que ser'ao passados para rodar o Docker compose
+  # -f: indicando que queremos um arquivo
+  args: ['-f', 'docker-compose.cloudbuild.yaml', 'up', '-d']

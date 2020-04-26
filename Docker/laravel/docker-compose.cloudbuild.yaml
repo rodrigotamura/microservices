@@ -1,0 +1,64 @@
+version: '3'
+services:
+  app:
+    build: .
+    container_name: app
+    # vamos alterar o entrypoint, pois não utilizaremos mais o dockerize
+    # entrypoint: dockerize -template ./.docker/app/.env:.env -wait tcp://db:3306 -timeout 40s ./.docker/entrypoint.sh
+    # vamos remover as variáveis de ambiente abaixo
+    # pois iremos utilizar as variáveis de uma arquivo .env
+    # environment:
+    #   - DB_HOST=db
+    #   - DB_DATABASE=laravel
+    #   - DB_USERNAME=root
+    #   - DB_PASSWORD=root
+    volumes:
+      - .:/var/www
+    depends_on:
+      - db
+      - redis
+    networks:
+      - app-network
+
+  nginx:
+    build: .docker/nginx
+    container_name: nginx
+    restart: always
+    tty: true
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www
+    networks:
+      - app-network
+    depends_on:
+      - app
+
+  db:
+    image: mysql:5.7
+    command: --innodb-use-native-aio=0
+    container_name: db
+    restart: always
+    tty: true
+    ports:
+        - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=laravel
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=root
+    volumes:
+      - ./.docker/dbdata:/var/lib/mysql
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    expose:
+      - 6379
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
