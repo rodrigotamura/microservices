@@ -51,3 +51,46 @@ Confira o dashboard do projeto que criamos.
 Vamos então habilitar o Google Cloud Build:
 
 ![Google Cloud Build](gcb-active.png)
+
+### Criando o primeiro *trigger*
+
+Algumas questões que precisamos compreender antes de prosseguir:
+
+- Todas as vezes que formos utilizar o Google Cloud Build - GCB -, vamos ter alguns gatilhos que serão acionados (quando der um *push* no repositório o GCB será acionado).
+
+Vamos reaproveitar o projeto que criamos [aqui](https://github.com/rodrigotamura/microservices/tree/master/Docker/laravel) no módulo de Docker, porém com um Docker compose indicado para o GCB, que seria [esse daqui](../Docker/laravel/docker-compose.cloudbuild.yaml).
+
+As principais modificações seriam remover as variáveis de ambiente pois vamos entender que o arquivo .env entrará em funcionamento, e alterar o *entrypoint*, pois não iremos mais utilizar o Dockerize.
+
+Agora, dentro da pasta `.docker` do projeto, vamos criar um novo arquivo de configuração chamado [cloudbuild.yaml](../Docker/laravel/.docker/cloudbuild.yaml). Este arquivo será lido pelo GCB onde terão todos os passos que devem ser executados.
+
+Quando trabalhamos com GCB teremos duas opções:
+
+1. Configurar para que o GCB leia e execute o Dockerfile da aplicação realizando também o teste de tudo o que está no Dockerfile ou;
+2. Que o GCB leia o cloudbuild.yaml que criamos anteriormente, conseguindo fazer testes mais profundos com a pipeline passo-a-passo de tudo o que desejamos testar (**o indicado seria o uso desta opção**).
+
+Abra o [cloudbuild.yaml](../Docker/laravel/.docker/cloudbuild.yaml) e veja cada comando com suas respectivas explicações. Logo após vamos enviar estes arquivos criados para o nosso repositório central.
+
+Acesse o Google Cloud Build, vamos configurar o repositório e criar uma nova **_trigger_** que é um acionador que será executado toda vez que algo acontecer.
+
+![Google Cloud Build trigger](gcb-trigger.png)
+
+Caso esteja utilizando o GitHub, o mesmo solicitará a autenticação e a escolha do repositório a ser configurado o GCB. Após isso, vamos criar um acionador, ou *trigger*:
+
+![Google Cloud Build new trigger](gcb-trigger-new.png)
+
+- Nome: informar um nome para o trigger;
+- Evento: vamos selecionar que o gatilho seja acionado quando houver novos *pushes* para o repositório;
+- Fonte - Repositório: Selecionar qual repositório;
+- Fonte - Ramificação: Qual o branch que será configurado o acionador;
+- Configuração da compilação: indica qual o arquivo de compilação será utilizado. Neste caso iremos utilizar a opção "Arquivo de configuração do Cloud Build (yaml ou json)", que irá buscar o arquivo `cloudbuild.yaml` de criamos anteriormente.
+
+Após tudo configurado, vamos executar esta trigger manualmente:
+
+![Google Cloud Build run trigger](gcb-trigger-run.png)
+
+Você notará nos logs que haverão erros de que não está encontrando a imagem do docker-compose no local que indicamos:
+
+![Google Cloud Build run trigger error](gcb-trigger-logs-error.png)
+
+O Docker compose precisa ser instalado para que consigamos trabalhar com ele. No próximo tópico iremos realizar esta instalação.
