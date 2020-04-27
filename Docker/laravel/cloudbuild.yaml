@@ -30,12 +30,20 @@ steps:
   name: "gcr.io/cloud-builders/docker"
   args: ['exec', '-t', 'app', 'composer', 'install']
 
+# Copiando .env.example para .env
 - id: "Copiando .ENV"
   # vamos executar o comando docker exec -t app cp .env.example .env
   name: "gcr.io/cloud-builders/docker"
   args: ['exec', '-t', 'app', 'cp', '.env.example', '.env']
 
+# Executando o key:generate para o projeto Laravel
 - id: "Executando o key:generate"
   # vamos executar o comando docker exec -t app php artisan key:generate
   name: "gcr.io/cloud-builders/docker"
   args: ['exec', '-t', 'app', 'php', 'artisan', 'key:generate']
+
+# Rodando as migrations
+- id: "Rodando migrations"
+  # vamos executar o comando docker exec -t app php artisan migrate
+  name: "gcr.io/cloud-builders/docker"
+  args: ['exec', '-t', 'app', 'php', 'artisan', 'migrate']
