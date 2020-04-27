@@ -47,3 +47,9 @@ steps:
   # vamos executar o comando docker exec -t app php artisan migrate
   name: "gcr.io/cloud-builders/docker"
   args: ['exec', '-t', 'app', 'php', 'artisan', 'migrate']
+
+# Rodando testes
+- id: "Rodando testes"
+  # vamos executar o comando docker exec -t app php artisan migrate
+  name: "gcr.io/cloud-builders/docker"
+  args: ['exec', '-t', 'app', 'php', '/vendor/bin/phpunit', '-c', 'phpunit.xml']
