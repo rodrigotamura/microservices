@@ -34,3 +34,8 @@ steps:
   # vamos executar o comando docker exec -t app cp .env.example .env
   name: "gcr.io/cloud-builders/docker"
   args: ['exec', '-t', 'app', 'cp', '.env.example', '.env']
+
+- id: "Executando o key:generate"
+  # vamos executar o comando docker exec -t app php artisan key:generate
+  name: "gcr.io/cloud-builders/docker"
+  args: ['exec', '-t', 'app', 'php', 'artisan', 'key:generate']
