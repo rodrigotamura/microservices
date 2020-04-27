@@ -1,14 +1,23 @@
 # indica quais são os passos
 steps:
 
-# identificação do passo
+# identificação do passo - Cada id é um passo
 - id: "Rodando docker-compose"
   # informar qual a imagem que o Docker tem pra ele rodar o Docker compose
   # $PROJECT_ID ira puxar o id que esta configurado no projeto, neste caso codeeducation-test
   # gcr.io seria o Google Cloud Registry
-  name: "gcr.io/$PROJECT_ID/docker-compose"
+  # Adicionamos a tag da versao do Docker Compose que queremos, segundo
+  # esta ali no nosso Container Registry
+  name: "gcr.io/$PROJECT_ID/docker-compose:1.25.5"
   # quais argumentos que ser'ao passados para rodar o Docker compose
   # -f: indicando que queremos um arquivo
   # Este path para o docker-compose.cloudbuild.yaml deve ser o caminho
   # relativo e completo
   args: ['-f', './Docker/laravel/docker-compose.cloudbuild.yaml', 'up', '-d']
+
+# Neste próximo passo iremos verificar se os containers estão no ar
+- id: "Listando containers - docker ps"
+  # vamos executar um docker ps, então vamos executar o comando pelo
+  # Container Registry público da GCP
+  name: "gcr.io/cloud-builders/docker"
+  args: ['ps']
