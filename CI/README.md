@@ -62,14 +62,14 @@ Vamos reaproveitar o projeto que criamos [aqui](https://github.com/rodrigotamura
 
 As principais modificações seriam remover as variáveis de ambiente pois vamos entender que o arquivo .env entrará em funcionamento, e alterar o *entrypoint*, pois não iremos mais utilizar o Dockerize.
 
-Agora, dentro da pasta `.docker` do projeto, vamos criar um novo arquivo de configuração chamado [cloudbuild.yaml](../Docker/laravel/.docker/cloudbuild.yaml). Este arquivo será lido pelo GCB onde terão todos os passos que devem ser executados.
+Agora, dentro da pasta `.docker` do projeto, vamos criar um novo arquivo de configuração chamado [cloudbuild.yaml](../Docker/laravel/cloudbuild.yaml). Este arquivo será lido pelo GCB onde terão todos os passos que devem ser executados.
 
 Quando trabalhamos com GCB teremos duas opções:
 
 1. Configurar para que o GCB leia e execute o Dockerfile da aplicação realizando também o teste de tudo o que está no Dockerfile ou;
 2. Que o GCB leia o cloudbuild.yaml que criamos anteriormente, conseguindo fazer testes mais profundos com a pipeline passo-a-passo de tudo o que desejamos testar (**o indicado seria o uso desta opção**).
 
-Abra o [cloudbuild.yaml](../Docker/laravel/.docker/cloudbuild.yaml) e veja cada comando com suas respectivas explicações. Logo após vamos enviar estes arquivos criados para o nosso repositório central.
+Abra o [cloudbuild.yaml](../Docker/laravel/cloudbuild.yaml) e veja cada comando com suas respectivas explicações. Logo após vamos enviar estes arquivos criados para o nosso repositório central.
 
 Acesse o Google Cloud Build, vamos configurar o repositório e criar uma nova **_trigger_** que é um acionador que será executado toda vez que algo acontecer.
 
@@ -97,7 +97,7 @@ O Docker compose precisa ser instalado para que consigamos trabalhar com ele. No
 
 ### Entendendo a instalação do Docker
 
-Vimos que houve um erro no tópico anterior quando tentarmos criar o primeiro passo da pipeline no GCB. Aconteceu que ao instalar o Docker compose através do endereço do Google Cloud Registry que informamos no [cloudbuild.yaml](../Docker/laravel/.docker/cloudbuild.yaml) não foi encontrado nada.
+Vimos que houve um erro no tópico anterior quando tentarmos criar o primeiro passo da pipeline no GCB. Aconteceu que ao instalar o Docker compose através do endereço do Google Cloud Registry que informamos no [cloudbuild.yaml](../Docker/laravel/cloudbuild.yaml) não foi encontrado nada.
 
 Agora vamos aprender a como criar uma nova imagem do Docker Compose e colocar lá dentro do Container Registry, dentro do Google Cloud.
 
@@ -124,3 +124,26 @@ Visão geral da instalação do Dokcer Compose:
 ![Docker Compose installation on GCP](docker-compose-gcp.png)
 
 O interessante é que isso será feito somente uma vez, podendo ser usado outras vezes.
+
+### Instalando o Docker Compose no Registry
+
+Lá no GCP, acesse o menu para o **Container Registry**. E você poderá ver as suas imagens disponíveis, inclusive as imagens públicas que comentamos anteriormente.
+
+![Container Registry - GCP](container-registry.png)
+
+Para não perdermos tempo já existe alguém que já inclui uma imagem de Docker Compose lá dentro do Container Registry: [acesse aqui o repositório](https://github.com/GoogleCloudPlatform/cloud-builders-community/tree/master/docker-compose).
+
+Vamos criar um diretório chamado `docker-compose`, e dentro deste diretório vamos copiar o [Dockerfile](./CI/docker-compose/Dockerfile) e o [cloudbuild.yaml](./CI/docker-compose/cloudbuild.yaml) do repositório comentado anteriormente.
+
+Agora, dentro do diretório vamos inicializar um repositório GIT, e também vamos criar um novo repositório no GitHub ([esse daqui](https://github.com/rodrigotamura/cloud-build-docker-compose)).
+
+Agora vamos retornar ao dash do Cloud Build (GCP) e vamos adicionar um novo trigger deste repositório que acabamos de criar, indicando o [cloudbuild.yaml](./CI/docker-compose/cloudbuild.yaml) para realizar o build. Execute o acionador criado e você verá que a imagem com o Docker Compose será criado.
+
+Você perceberá que no Container Registry do GCP aparecerá a imagem do `docker-compose`:
+
+![Docker Compose](container-registry-docker-compose.png)
+
+**Finalmente** vamos executar o *trigger* que criamos [neste tópico](container-registry-docker-compose.png) e que acabou dando erro pelo fato de não existir a imagem do Docker Compose. Você verá que deu tudo certo desta vez:
+
+![Trigger done](trigger-done.png)
+

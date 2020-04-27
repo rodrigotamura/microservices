@@ -9,4 +9,6 @@ steps:
   name: "gcr.io/$PROJECT_ID/docker-compose"
   # quais argumentos que ser'ao passados para rodar o Docker compose
   # -f: indicando que queremos um arquivo
+  # Este path para o docker-compose.cloudbuild.yaml deve ser o caminho
+  # relativo e completo
   args: ['-f', './Docker/laravel/docker-compose.cloudbuild.yaml', 'up', '-d']
