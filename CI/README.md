@@ -194,3 +194,29 @@ Chegou a parte de rodar os testes da aplicação.
 Vamos abrir o arquivo [cloudbuild.yaml](../Docker/laravel/cloudbuild.yaml) e adicionar este passo, cujo id é `Rodando testes` (abra o arquivo para ver as explicações mais detalhadas).
 
 ![PHPUnit](gcb-test.png)
+
+### Instalando Cloud Build App no GitHub
+
+Vamos fazer uma implementação a dmais no GitHub, onde toda vez que criarmos uma *pull request* o GitHub automaticamente acione no Google Cloud Build e roda para garantir que está tudo bem para somente depois realizar o *merge*.
+
+Isso é possível através de uma aplicação do GitHub feita pela Google Cloud Build no marketplace, onde podemos instalar dentro de uma conta.
+
+Primeiramente vamos acessar o [marketplace do GitHub](https://github.com/marketplace) e pesquise pelo **Google Cloud Build**, como mostra o print abaixo:
+
+![GitHub Marketplace](github-marketplace.png)
+
+Se necessário, passe por todos os processos de permissão de uso da conta e siga os passos requeridos para realizar esta integração. A seguinte tela aparecerá indicando que a integração ocorreu com sucesso:
+
+![GitHub & GCB integration](github-gcb.png)
+
+Se ainda não tem, vamos criar uma `branch develop` do projeto. Logo vamos alterar algum arquivo para realizarmos o *push* ao repositório e acionar a *trigger* que configuramos anteriormente.
+
+Após realizar o *push*, e solicitar a realização do *pull request* lá no GitHub do `develop` para o `master`, você notará que agora o GitHub consegue visualizar se o processo de *build* lá no GCB finalizou ou não:
+
+![GitHub Integration](github-gcb-integration.png)
+
+Note que o botão de *merge* ainda não funciona se o processo não concluir com sucesso.
+
+Se tudo ocorrer bem lá no GCB, será sinalizado no GitHub:
+
+![GitHub Integration Done](github-gcb-integration-done.png)
