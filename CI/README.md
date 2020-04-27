@@ -147,3 +147,50 @@ Você perceberá que no Container Registry do GCP aparecerá a imagem do `docker
 
 ![Trigger done](trigger-done.png)
 
+### Executando pipeline completo
+
+#### Pipeline - Verificando se container está no ar
+
+Nesta etapa do pipeline vamos verficiar se os containers estão foram para o ar corretamente. Para este teste iremos executar o comando `docker ps`.
+
+Vamos abrir o arquivo [cloudbuild.yaml](../Docker/laravel/cloudbuild.yaml) e adicionar este passo, cujo id é `Listando containers - docker ps` (abra o arquivo para ver as explicações mais detalhadas).
+
+Ao realizar o *push* deste arquivo editado ao repositório, você irá notar que o GCB irá rodar a *trigger*, pois está programado para que, cada vez que alteramos algo no repositório este *trigger* será acionado.
+
+![Docker PS](gcb-docker-ps.png)
+
+#### Pipeline - Rodando o Composer
+
+Vamos abrir o arquivo [cloudbuild.yaml](../Docker/laravel/cloudbuild.yaml) e adicionar este passo, cujo id é `Rodando o Composer` (abra o arquivo para ver as explicações mais detalhadas).
+
+![Installing dependencies](gcb-composer.png)
+
+#### Pipeline - Copiando o .ENV
+
+Vamos abrir o arquivo [cloudbuild.yaml](../Docker/laravel/cloudbuild.yaml) e adicionar este passo, cujo id é `Copiando .ENV` (abra o arquivo para ver as explicações mais detalhadas).
+
+![.ENV](gcb-env.png)
+
+#### Pipeline - Executando o key:generate
+
+Para que o projeto Laravel funcione, precisamos executar o `key:generate`.
+
+Vamos abrir o arquivo [cloudbuild.yaml](../Docker/laravel/cloudbuild.yaml) e adicionar este passo, cujo id é `Executando o key:generate` (abra o arquivo para ver as explicações mais detalhadas).
+
+![key:generate](gcb-key.png)
+
+#### Pipeline - Migrations
+
+Vamos rodar as *migrations* do projeto no banco de dados. Esta é uma ótima oportunidade para verificar se o serviço de banco de dados está funcionando corretamente.
+
+Vamos abrir o arquivo [cloudbuild.yaml](../Docker/laravel/cloudbuild.yaml) e adicionar este passo, cujo id é `Rodando migrations` (abra o arquivo para ver as explicações mais detalhadas).
+
+![Migrations](gcb-migration.png)
+
+#### Pipeline - Rodando PHPUnit
+
+Chegou a parte de rodar os testes da aplicação.
+
+Vamos abrir o arquivo [cloudbuild.yaml](../Docker/laravel/cloudbuild.yaml) e adicionar este passo, cujo id é `Rodando testes` (abra o arquivo para ver as explicações mais detalhadas).
+
+![PHPUnit](gcb-test.png)
