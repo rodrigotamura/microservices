@@ -29,3 +29,8 @@ steps:
   # as dependências do projeto Laravel via composer install
   name: "gcr.io/cloud-builders/docker"
   args: ['exec', '-t', 'app', 'composer', 'install']
+
+- id: "Copiando .ENV"
+  # vamos executar o comando docker exec -t app cp .env.example .env
+  name: "gcr.io/cloud-builders/docker"
+  args: ['exec', '-t', 'app', 'cp', '.env.example', '.env']
