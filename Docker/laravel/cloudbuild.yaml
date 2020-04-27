@@ -21,3 +21,11 @@ steps:
   # Container Registry público da GCP
   name: "gcr.io/cloud-builders/docker"
   args: ['ps']
+
+# Neste próximo passo iremos rodar o Composer
+- id: "Rodando o Composer"
+  # vamos executar o comando docker exec -t app composer install
+  # ao qual iremos entrar no container app e executar o comando para instalar
+  # as dependências do projeto Laravel via composer install
+  name: "gcr.io/cloud-builders/docker"
+  args: ['exec', '-t', 'app', 'composer', 'install']
