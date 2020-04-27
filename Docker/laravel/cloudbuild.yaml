@@ -49,7 +49,7 @@ steps:
   args: ['exec', '-t', 'app', 'php', 'artisan', 'migrate']
 
 # Rodando testes
-- id: "Rodando testes"
+- id: "Rodando Testes"
   # vamos executar o comando docker exec -t app php artisan migrate
   name: "gcr.io/cloud-builders/docker"
   args: ['exec', '-t', 'app', 'php', '/var/www/vendor/bin/phpunit', '-c', '/var/www/phpunit.xml']
