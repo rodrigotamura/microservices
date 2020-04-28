@@ -50,3 +50,48 @@ Mas vamos imaginar que foi adicionado mais um nó neste *cluster* e o mesmo est�
 ![Deployment Nodes](deployment-nodes.png)
 
 Vamos supor que um destes nós ficou fora do ar. O Kubernetes vai provisionar os PODs que estão fora do ar no nós qu eestá funcionando, porém alguns PODs vão ficar de fora pois não caberão todos, ficando assim aguardando novos nós ou aumento dos recursos no atual nó.
+
+## Entendendo Services
+
+Services é a interface de comunicação entre o ambiente externo e os nossos PODs. Afinal, se tivermos vários PODs como saberei qual acessar? Então os *Services* nos ajudam nesta demanda.
+
+> *Services* é uma forma de agregar um conjunto de PODs para então implementar políticas de visibilidade. Através das políticas de visibilidade adotada iremos expor os nossos PODs.
+
+Existem três tipos principais de services, aos quais veremos a seguir.
+
+### Services - ClusterIP
+
+É o *service* padrão quando criado no Kubernetes. 
+
+![ClusterIP](services-clusterip.png)
+
+Imaginamos que temos um tráfego da rede entrando, então temos um *proxy* que sabe em qual *service* mandar, e logo temos um *service* que aponta para os PODs.
+
+Partimos da regra que os PODs se comunicam entre si e não possui um acesso direto ao mundo externo. Então teremos um IP virtual gerada pelo *cluster* e tudo que roda ali dentro, no final das contas, acontece de forma interna.
+
+### Services - NodePort
+
+Diferente do ClusterIP, este tipo de *service* não trabalha com *proxy*.
+
+![NodePort](services-nodeport.png)
+
+Então temos uma carga externa de tráfego vindo, então nós temos os nós (node da máquina 1, node da máquina 2, etc.) e uma porta específica. Esta carga de tráfego cairá em uma determinada porta e, independente de qual porta cair, será encaminhado para um *service* que apontará para os PODs.
+
+Então não temos um *proxy* para rotear, mas sim várias portas que são atribuídas para cada serviço. Se em algum momento cair na porta, por exemplo 3001, não importa qual node que cair este tráfego, automaticamente o Kubernetes sabe que ele tem que redirecionar para um determinado serviço.
+
+### Service - LoadBalancer
+
+A ideia principal é export um IP externo e a carga do tráfego cairá neste *LoadBalancer*, que fará toda a distriuição de carga, inclusive para saber em qual nó ele encaminhará o acesso.
+
+No ClusterIP não temos acesso externo, somente para dentro do *cluster*. Se estivermos com o NodePort na mesma rede e mandarmos um tráfego para qualquer um dos nodes naquela porta, o mesmo receberá e o LoadBalancer garantirá isso do lado de fora.
+
+### Selectors
+
+Mas **como saberemos que determinados PODs pertence a determinado _service_?**
+
+Para isso temos os **_Selectors_**, que será definido no *service* para fazer um filtro de verificação para saber quais PODs ele vai colocar dentro daquele serviço.
+
+![Services - Selectors](services-selectors.png)
+
+Assim temos uma ideia de como podemos selecionar os PODs dentro de um serviço através de *selectors* que definiremos as propriedades e que podem ser várias. Vamos supor que temos *backends* em NOdeJS na versão X com a propriedade Z. Podemos colocar todas estas informações no *seletor*. Quando formos criar os services conseguimos fazer esses filtros e ele vai buscar todos os PODs com estas características para gerar o *service* deixando tudo disponível.
+
