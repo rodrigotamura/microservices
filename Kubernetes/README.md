@@ -95,3 +95,30 @@ Para isso temos os **_Selectors_**, que será definido no *service* para fazer u
 
 Assim temos uma ideia de como podemos selecionar os PODs dentro de um serviço através de *selectors* que definiremos as propriedades e que podem ser várias. Vamos supor que temos *backends* em NOdeJS na versão X com a propriedade Z. Podemos colocar todas estas informações no *seletor*. Quando formos criar os services conseguimos fazer esses filtros e ele vai buscar todos os PODs com estas características para gerar o *service* deixando tudo disponível.
 
+## Minikube
+
+Com o Minikube podemos criar uma máquina virtual com o *Singlenode Kubernetes* rodando dentro dele na nossa máquina, para que possamos fazer a prática em Kubernetes. Salienta-se que os recursos são bem limitados, não terá disponível o *LoadBalancer*, etc. Mas é totalmente viável testarmos as operações básicas.
+
+### Instalação
+
+Acesse [este link](https://kubernetes.io/docs/tasks/tools/install-minikube/) para iniciar a instalação do Minikube.
+
+> 👉 Como máquina virtual estaremos utilizando o **VirtualBox**.
+
+Lembrando que também precisamos [instalar o **kubectl**](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-on-linux).
+
+Para inicializar o Minikube temos que executar o comando `minikube start` (na primeira execução poderá demorar um pouco).
+
+> O **kubectl** é um *client* do Kubernetes para se comunicar com algum *cluster* do Kubernetes. Nele podemos configurar arquivos de configuração que setam cada *namespace* para estabelecermos a comunicação com determinado *cluster*. Podemos então configurar um ambiente para que o *kubectl* se comunique com o *cluster* 1, ou o *cluster 2*, ou o *cluster* na Amazon, no GCP, no Minikube, etc. E nestes arquivos de configuração temos um certificado que garante que o kubectl tem autorização para acessar determinados *clusters* de Kubertnetes.
+
+Após inicializado o Minikube, note que aparecerá a mensagem que *kubectl is now configured to use "minikube"*, ou seja, todos os comandos de `kubectl` que executarmos está configurado para o Minikube.
+
+Para listarmos os *services* do nosso Minikube, vamos executar: `kubectl get svc` que retornará o seguinte:
+
+```
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   9m25s
+```
+
+Retornou um elemento chamado **kubernetes**, do tipo **ClusterIP** (só possui comunicação interna por dentro do *cluster*), note que não tem IP externo, mas somente o interno.
+
