@@ -1,6 +1,6 @@
 # Overview
 
-Este repositório é um compilado de anotações do curso **Desenvolvimento de Aplicações Modernas e Escaláveis com Microsserviços** pela Code Education.
+Este repositório é um compilado de anotações PESSOAIS do curso **Desenvolvimento de Aplicações Modernas e Escaláveis com Microsserviços** pela Code Education.
 
 ## Sumário
 
