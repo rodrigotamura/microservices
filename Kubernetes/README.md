@@ -255,3 +255,34 @@ Logo após vamos rodar o comando `kubectl apply -f service.yaml` e, se não deu 
 
 **ATENÇÃO:** caso o POD indicado no `spec.selector` não encontrar nenhuma key `app:hello-nginx` logicamente o serviço quando acessado via `minikube service nginx-service` estará fora do ar.
 
+## Escalando PODs
+
+Existem alguns questionamentos que surgem quando subimos nossos *deployments* contendo os containers nos PODs do Kubernetes.
+
+**_Se este POD por algum motivo "morrer, o que vai acontecer?"_**
+O Kubernetes perceberá que um POD morreu então ele vai tentar subir novamente um novo POD. Mas se quisermos GARANTIR que nada fique fora do ar (pois o tempo entre a morte e subir um POD haverá um *downtime*) teremos que **adicionar novos PODs**, e a adição de outros PODs podem garantir também o atendimento de mais tráfegos.
+
+Vamos neste tópico trabalhar com **RÉPLICAS**.
+
+Abramos o arquivo [deployment.yaml](deployment.yaml), e vamos acrescentar a configuração `specs.replicas`. Abra o arquivo para maiores detalhes e explicações.
+
+Veja que, após a aplicação desta configuração que irá gerarr 3 réplicas, ao subir este *deployment* e logo após listar os PODs você verá que haverão 3 PODs rodando:
+
+```
+NAME                          READY   STATUS    RESTARTS   AGE
+hello-nginx-dbd45bd76-7fq68   1/1     Running   0          22m
+hello-nginx-dbd45bd76-bgmxj   1/1     Running   0          8s
+hello-nginx-dbd45bd76-qm2sk   1/1     Running   0          8s
+```
+
+E veja que, através do comando `kubectl get deployments` retornarão 3/3 PODs:
+
+```
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+hello-nginx   3/3     3            3           84m
+```
+
+O Kubernetes també possui o recurso de **auto-scaling**, porém não iremos abordar sobre este assunto.
+
+Lembrando que não podemos ficar aumentando o número de réplicas pois os nós possuem recursos limitados (CPU, RAM, etc.). Quando um nó está no limite e mais réplicas são criadas, o Kubernetes vai procurar por novos nodes que estejam disponíveis no *cluster*.
+

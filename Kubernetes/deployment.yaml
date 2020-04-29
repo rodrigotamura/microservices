@@ -10,7 +10,9 @@ metadata:
 
 # quando criamos o POD, estavamos criando as especificacoes
 # do POD. Neste caso sao as especificacoes do deployment
-spec:  
+spec:
+    # Trabalhando com réplicasssss, e queremos 3 réplicas
+    replicas: 3
     selector:
         matchLabels:
             app: bye-nginx
