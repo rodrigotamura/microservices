@@ -13,6 +13,19 @@ metadata:
 spec:
     # Trabalhando com réplicasssss, e queremos 3 réplicas
     replicas: 3
+
+    # quando for criar o service do nginx
+    # tudo vai ficar mais facil porque lá
+    # nos services vamos declarar qual é o selector 
+    # para pegarmos aqui nesse deployment através das labels
+    # então serão criados os PODs baseados neste selector
+    # ou seja, o Service irá procurar baseado no 
+    # service.yaml.spec.selector.app=by-nginx
+
+    # Antigamente, quando não se declarava este selector
+    # dentro do deployment, o match se dava pelo
+    # deployment.yaml.spec.template.metadata.labels
+    # o que é muito ruim.
     selector:
         matchLabels:
             app: bye-nginx

@@ -310,3 +310,9 @@ nginx-conf   1      67s
 Agora vamos fazer o *Deployment* com as novas configurações de volumes via `kubectl apply -f deployment.yaml`. Lembrando que é necessário ver se os PODs de fato estão no ar via `kubctl get pods`.
 
 Estando com o *service* no ar, vamos executar o comando `minikube service nginx-service` e será aberto o navegador com a página inicial do NGINX. Podemos agora testar alterando o endereço para `http://<ip-fornecido-pelo-minikube>:30586/google` e o redirecionando para o site da Google deveria funcionar.
+
+## Configurando o MySQL do zero
+
+Vamos criar os nossos arquivos de Kubernetes dentro [desta pasta](./mysql).
+
+Primeiro vamos preparar o nosso arquivo de [deployment](./mysql/deployment.yaml) e fazer o teste subindo o mesmo. Não se esqueça que para verificar se o serviço de MySQL subiu certinho temos que dar o comando `kubectl get pods`.

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: mysql-server
+spec: # do Deployment
+    replicas: 1
+    selector:
+        matchLabels:
+            app: mysql-server
+            tier: db
+
+    template: # referente ao POD
+        metadata:
+            labels:
+                app: mysql-server
+                ## estamos criando esta label chamada tier
+                # pois eventualmente teremos varias aplicacoes
+                # como Laravel, Go, etc., e o tier diz onde vamos
+                # encontrar esta aplicacao. Entao eu posso 
+                # dizer que é um tier backend, tier frontend ou tier db
+                # Não é algo obrigatório, é uma questão de organização
+                # mesmo
+                tier: db
+        spec: # do POD
+            containers: 
+            - image: mysql:5.7
+              name: mysql-server
+              # a partir de agora, vamos utilizar o env
+              # onde podemos setar as variaveis aquelas
+              # de MySQL que setamos quando criamos um
+              # Dockerfile
+              env:
+              # MYSQL_ROOT_PASSWORD=root
+              - name: MYSQL_ROOT_PASSWORD
+                value: root
+              # Se quiser adicionar mais...
+        #     - name: VARIAVEL
+        #       value: valor
+              ports:
+              - containerPort: 3306
+
+
