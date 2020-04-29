@@ -11,7 +11,7 @@ kind: Pod
 
 metadata:
     # definindo um nome
-    name: pod-exemplo
+    name: hello-nginx
 # declarando as especificações que no mínimo o POD deve ter
 spec:
     # qual container que esse POD vai rodar
@@ -19,7 +19,7 @@ spec:
     # mas o RECOMENDADO é trabalhar com um POD
     # por container
     containers: 
-        - name: pod-exemplo
+        - name: hello-nginx
           # informando a imagem desta forma abaixo
           # buscará do DockerHub
           # Mas posso colocar o registro desejado 

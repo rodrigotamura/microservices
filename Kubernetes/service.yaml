@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: nginx-service
+
+#specs do service
+spec:
+    type: LoadBalancer
+    ports:
+    - port: 80
+    # quando criamos um service precisamos de uma forma para fazer com que
+    # este service saiba quais são os Deployments que ele vai trabalhar junto com 
+    # eles. E agente faz isso através dos SELECTORS.
+    # No arquivo deployment.yaml temos uma 
+    # label chamado app com o valor hello-nginx. E neste serevice eu
+    # quero dizer que quero pegar todos os Deployments que tenha uma label
+    # chamado 'app' com o valor 'hello-nginx', podendo haver vários
+    # Deployments que dêem match nesta filtragem
+    selector: 
+        app: bye-nginx

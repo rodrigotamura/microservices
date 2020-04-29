@@ -10,10 +10,10 @@ metadata:
 
 # quando criamos o POD, estavamos criando as especificacoes
 # do POD. Neste caso sao as especificacoes do deployment
-spec:
+spec:  
     selector:
         matchLabels:
-          app: hello-nginx
+            app: bye-nginx
     # porem... quando declaro o template, estamos criando
     # o modelo de um POD que eu quero que o meu deployment
     # crie. Tudo que estiver aninhado ao template serao
@@ -28,7 +28,8 @@ spec:
             # possua a aplicacao X, realizando assim a
             # FILTRAGEM
             labels: 
-                app: hello-nginx
+                # label chamado app com o valor hello-nginx
+                app: bye-nginx
             
         # lembrando que o seguinte spec deste POD
         spec:

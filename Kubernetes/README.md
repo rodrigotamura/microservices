@@ -245,3 +245,13 @@ Antes de colocar no ar o *Deployment* configurado via YAML, vamos "matar" todos 
 
 Agora vamos executar o seguinte comando para colocarmos no ar o *Deployment* criado: `kubectl apply -f deployment.yaml` então retornará uma resposta notificando que o *deployment* foi criado.
 
+## Criando nosso Service
+
+Agora vamos criar no formato de arquivo declarativo o nosso *Service*.
+
+Vamos criar o arquivo chamado [service.yaml](service.yaml). Acesse este arquivo para maiores explicações e detalhes.
+
+Logo após vamos rodar o comando `kubectl apply -f service.yaml` e, se não deu nenhum retorno de erro, execute `minikube service nginx-service`.
+
+**ATENÇÃO:** caso o POD indicado no `spec.selector` não encontrar nenhuma key `app:hello-nginx` logicamente o serviço quando acessado via `minikube service nginx-service` estará fora do ar.
+
