@@ -40,3 +40,38 @@ spec:
                   image: nginx:1.17-alpine
                   ports: 
                   - containerPort: 80
+
+                  # Integrando este container com o volume criado abaixo
+                  # aqui declaramos onde e como vão funcionar as configurações
+                  # de montagem do volume neste container 
+                  volumeMounts:
+                    # local dentro do container
+                    # neste caso o nginx.conf ficara aqui
+                  - mountPath: /etc/nginx/conf.d
+                    # qual o nome deste volume. É o momento em que integramos 
+                    # o volume que criamos abaixo com o container
+                    name: nginx-conf
+                    # Ningu[em pode fazer alteracoes nele
+                    readOnly: true
+
+
+            # aqui vamos declarar os volumes, que podem ser vários
+            volumes:
+                # nome do volume
+            - name: nginx-conf
+              # como iremos pegar o valor deste volume
+              # a utilizada aqui é uma das formas
+              configMap: 
+                # qual o nome do ConfigMap?
+                # (veja o que foi informado lá no arquivo configmap.yaml)
+                name: nginx-conf
+                # quais sao os itens do nginx-conf
+                items:
+                    # qual a key qye você quer utilizar?
+                    # você pode pegar o nome da key em configmap.yaml.data
+                    - key: nginx.conf
+                      # quando este ConfigMap for montado em qualquer local,
+                      # como que vai ser o nome do arquivo que vai conter
+                      # este conteúdo e que será armazenado dentro do container NGINX? 
+                      # Então o nome será o nginx.conf
+                      path: nginx.conf

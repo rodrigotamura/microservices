@@ -286,3 +286,27 @@ O Kubernetes també possui o recurso de **auto-scaling**, porém não iremos abo
 
 Lembrando que não podemos ficar aumentando o número de réplicas pois os nós possuem recursos limitados (CPU, RAM, etc.). Quando um nó está no limite e mais réplicas são criadas, o Kubernetes vai procurar por novos nodes que estejam disponíveis no *cluster*.
 
+## Trabalhando com ConfigMap
+
+Quando trabalhamos com Docker, podíamos realizar o mapeamento dos arquivos e aplicando configurações para dentro de uma imagem através do Dockerize.
+
+Mas como poderíamos fazer isso trabalhando com o Kubernetes?
+
+Na prática deste tópico, vamos continuar trabalhando com o NGINX, porém alterando criando dentro das configurações um parâmetro de redirecionamento. Então toda vez que agente acessar o endereço que o Kubernetes vai disponibilizar para acesso seguido pelo `/google` (ex.: http://192.168.0.87/google), o NGINX vai reescrever esta URL e redirecionar para o site da Google.
+
+Para isso vamos utilizar o **ConfigMap**, que é mais um objeto/arquivo do Kubernetes que nos auxiliará a colocar qualquer tipo de dados, documentos, veriáveis, arquivos (até mesmo grandes), montando assim um **_volume_** no *Deployment* declarando o local do container que aquele arquivo irá aparecer.
+
+Vamos criar o arquivo [configmap.yaml](configmap.yaml) e declarar os comandos de configuração. Por favor, abra-o para visualizar maiores detalhes e explicações.
+
+Após finalizar o arquivo de ConfigMap acima, vamos utilizar este dentro do *Deployment* declarando-o através do arquivo [deployment.yaml](deployment.yaml), adicionando o comando `spec.template.spec.volumes` para declarar os volumes, e logo após vamos indicar que o container NGINX vai utilizar este volume através do `spec.template.spec.containers.volumeMounts`. Abra este arquivo para visualizar mais detalhes.
+
+Agora vamos aplicar a nossa ConfigMap: `kubectl apply -f configmap.yaml`. Para saber se funcionou vamos listar através do `kubectl get configmaps`, retornando o seguinte:
+
+```
+NAME         DATA   AGE
+nginx-conf   1      67s
+```
+
+Agora vamos fazer o *Deployment* com as novas configurações de volumes via `kubectl apply -f deployment.yaml`. Lembrando que é necessário ver se os PODs de fato estão no ar via `kubctl get pods`.
+
+Estando com o *service* no ar, vamos executar o comando `minikube service nginx-service` e será aberto o navegador com a página inicial do NGINX. Podemos agora testar alterando o endereço para `http://<ip-fornecido-pelo-minikube>:30586/google` e o redirecionando para o site da Google deveria funcionar.

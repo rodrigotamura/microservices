@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: nginx-conf
+
+# Aqui nesta sessão "data" iremos criar as key:value
+data:
+    # através do pipe abaixo declarado, tudo o que for declarado após será o
+    # valor da key nginx.conf. É como se eu pudesse trabalhar com bloco de comando
+    # note que estamos fazendo algo parecido com o arquivo de configurao
+    # que aplicamos em /microservices/Docker/laravel/.docker/nginx/nginx.conf
+    nginx.conf: |
+        server {
+            listen 80;
+            index index.php index.html;
+            root /usr/share/nginx/html;
+
+            rewrite ^/google$ https://google.com permanent;
+        }
