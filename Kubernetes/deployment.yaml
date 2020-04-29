@@ -1,0 +1,39 @@
+# Versão da API Kubernetes
+apiVersion: apps/v1
+
+# indicando que o tipo sera Deployment
+kind: Deployment
+
+metadata:
+    # nome do deployment
+    name: hello-nginx
+
+# quando criamos o POD, estavamos criando as especificacoes
+# do POD. Neste caso sao as especificacoes do deployment
+spec:
+    selector:
+        matchLabels:
+          app: hello-nginx
+    # porem... quando declaro o template, estamos criando
+    # o modelo de um POD que eu quero que o meu deployment
+    # crie. Tudo que estiver aninhado ao template serao
+    # as especificacoes do POD que este deployment crie
+    template:
+        # voce vai perceber que esta parte é muito parecida
+        # com o que declaramos lá no arquivo yaml do POD
+        metadata:
+            # forma de identificar e buscar ou filtrar os nossos PODs
+            # que contem certas labels. Por exemplo, eu quero
+            # buscar todos os PODs que possui o NGINX e que
+            # possua a aplicacao X, realizando assim a
+            # FILTRAGEM
+            labels: 
+                app: hello-nginx
+            
+        # lembrando que o seguinte spec deste POD
+        spec:
+            containers:
+                - name: nginx
+                  image: nginx:1.17-alpine
+                  ports: 
+                  - containerPort: 80

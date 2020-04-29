@@ -150,5 +150,98 @@ Mas, **_como faremos para acessar este container do NGINX que criamos dentro des
 
 Lembra que, como foi abordado ontem, todo o tráfego que precisa acessar é necessário ter um *service*, possuindo os três tipos - ClusterIP, LoadPort e LoadBBalancer. No próximo tópico vamos matar este POD recém criado, vamos criar um *Deployment*, e através deste vamos criar um novo POD e depois vamos criar um *Service* para expor este *Deployment* onde tem os PODs rodando para poder acessar via browser o serviço do NGINX.
 
+## Trabalhando com *Deployments*
 
+Não é recomendado criar PODs como no tópico anterior, pois só foi para questões didáticas.
+
+Aqui vamos criar um *Deployment* que pega um conjunto de PODs (vamos definir isso na parte de réplicas), qual a imagem que ele vai utilizar e quando formos *subir* o *deployment* os PODs serão criados automaticamente.
+
+Vamos criar o *Deployment* de duas formas. A primeira forma é via linha de comando, pois tudo que agente escreve no arquivo YAML podemos executar via linha de comando. Obviamente que na prática não convém optar por isso. Mas o recomendado é a segunda forma, onde utilizaremos um arquivo declarativo YAML.
+
+### Deployment utilizando a linha de comando
+
+Execute inicialmente o comando `kubectl create deployment hello-nginx --image=nginx:1.17-alpine`, onde: 
+
+- `hello-nginx` seria o nome do *deployment*;
+- `--image=<nome-imagem>` indica a imagem que será utilizada
+
+Ao executar o comando acima, se der tudo certo, aparecerá a seguinte mensagem:
+
+`deployment.apps/hello-nginx created`
+
+Para listar os *deployments* vamos digitar `kubectl get deployments` que retornará o seguinte:
+
+```
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+hello-nginx   1/1     1            1           82s
+```
+(a coluna `READY` indica que existe 1 POD de 1 rodando)
+
+Perceba que ao executarmos `kubectl get pods` serão listados todos os PODs que temos:
+
+```bash
+NAME                           READY   STATUS    RESTARTS   AGE
+hello-nginx-6485484cdf-2ztwg   1/1     Running   0          2m20s
+pod-exemplo                    1/1     Running   0          29m
+```
+
+O POD `hello-nginx-6485484cdf-2ztwg` foi criado pelo *deployment*.
+
+Perceba que um *deployment* tem um *replicaSet* e este pode escolher quantos PODs ele quer ter disponível.
+
+**Agora vamos criar um _SERVICE_** e a partir dele vamos conseguir acessar o POD que está dentro deste *deployment*.
+
+> Lembrando que estamos fazendo via linha de comando. Mais adiante vamos implementar tudo isso via arquivo declarativo.
+
+Criando o *service* para acesso ao POD:
+
+`kubectl expose deployment hello-nginx --type=LoadBalancer --port=80`
+
+- `expose`: comando para expor algo;
+- `deployment <nome-deployment>`: indicando o que queremos expor, neste caso seria o *deployment*;
+- `--type=<service-type>`: LoadBalancer / LoadPort / ClusterIP. O Minikube não possui a opção LoadBalancer, mas mais adiante vamos entrar em mais detalhes.
+- `--port=<num-porta>`: em qual porta vamos expor para acesso externo.
+
+Caso dê tudo certo será retornado o seguinte:
+
+`service/hello-nginx exposed`
+
+Ao executar o comando para listar os *services* via `kubectl get services`, será retornado o seguinte:
+
+```
+NAME          TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+hello-nginx   LoadBalancer   10.107.76.245   <pending>     80:31052/TCP   3m23s
+kubernetes    ClusterIP      10.96.0.1       <none>        443/TCP        16h
+```
+
+Note que foi criado o `hello-nginx`, o IP `10.107.76.245` indica o IP do cluster, o `EXTERNAL-IP` está como pendente pois não vai gerar. Ali na coluna `PORT(S)` está declarando que ao acessar a porta 31052 o *service* redirecionará para a porta 80 do POD.
+
+O seguinte comando do Minikube realizará o acesso para o POD:
+
+`minikube service hello-nginx`
+
+Você notará que o navegador será aberto com o endereço para acesso ao POD e retornando o seguinte:
+
+```
+|-----------|-------------|-------------|-------------------------|
+| NAMESPACE |    NAME     | TARGET PORT |           URL           |
+|-----------|-------------|-------------|-------------------------|
+| default   | hello-nginx |          80 | http://172.17.0.2:31052 |
+|-----------|-------------|-------------|-------------------------|
+🎉  Opening service default/hello-nginx in default browser...
+```
+
+Perceba que o IP aberto no navegador não é o mesmo que o indicado no *cluster IP*. Na verdado o IP indicado no navegador foi gerado pelo próprio Minikube.
+
+### Deployment via arquivo declarativo
+
+Esta é a forma normal de sere criado um *deployment*.
+
+Vamos criar um arquivo chamado [deployment.yaml](deployment.yaml).
+
+Antes de colocar no ar o *Deployment* configurado via YAML, vamos "matar" todos os outros *Deployments* criados anteriormente via comando:
+
+`kubectl delete deployments --all`
+
+Agora vamos executar o seguinte comando para colocarmos no ar o *Deployment* criado: `kubectl apply -f deployment.yaml` então retornará uma resposta notificando que o *deployment* foi criado.
 
