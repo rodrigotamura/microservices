@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: mysql-service
+
+spec:
+    ports: 
+        # liberando a porta 3306 do container
+        - port: 3306
+    selector:
+        app: mysql-service
+        tier: db
+    # não queremos que este banco seja acessado de fora do cluster
+    # através de um IP interno, mas queremos que seja acessado via
+    # o nome que damos: mysql-service
+    # Então toda vez que eu quiser acessar este serviço de MySQL
+    # iremos acessar via mysql-service
+    # Isso ajudará muito, inclusive, no serviço de service discovery,
+    # pois ao invés de eu ficar gravando numa tabelinha todos os IPs
+    # dos nodes que tem o MySQL rodando os PODs, vamos utilizar apenas este
+    # nome e o Kubernetes já resolverá por este nome. 
+    clusterIP: None

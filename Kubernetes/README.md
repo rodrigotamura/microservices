@@ -364,3 +364,26 @@ Execute o comando `kubectl get secrets` para visualizar a SECRET chamada `mysql-
 Agora vamos lá para o [deployment](./mysql/deployment.yaml), mais especificamente na linha da senha de *root*. Abra-o para ver mais detalhes.
 
 Ao rodar o *deployment* novamente, é provável que a senha não tenha sido alterada pois os arquivos, que iniclusive possui a senha gravada, estão lá no VolumeClaim.
+
+### Criando o MySQL Service
+
+Sabemos que o nosso POD MySQL está rodando. Porém não há como acessar o banco de dados pois ainda não criamos o *Service*.
+
+Vamos criar um novo arquivo, dentro de nossa pasta do mysql, chamado [service.yaml](./mysql/service.yaml). Abra-o para visualizar maiores detalhes e explicações.
+
+Após configurado o *service*, vamos aplicá-lo, e depois de aplicado vamos listar os *services* que retornará:
+
+```
+NAME            TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+mysql-service   ClusterIP      None            <none>        3306/TCP       2m48s
+```
+No caso, o *service* que estamos trabalhando seria o `mysql-service`. Note que o `EXTERNAL-IP` está como `None`. Isso significa que não iremos acessar o banco de dados via IP, mas sim pelo próprio nome do serviço. O `EXTERNAL-IP` está como `<none>`, onde ninguém poderá acessá-lo externamente.
+
+Podemos fazer um teste entrando no POD que está rodando o MySQL através do comando:
+
+`kubectl exec -it mysql-server-855988547-c2zdk bash`
+
+(no caso `mysql-server-855988547-c2zdk` seria o nome do POD que você poderá obter via `kubectl get pods`)
+
+Agora de dentro do container, vamos rodar o comando para entrarmos no console do MySQL via `mysql -uroot -p`, informando a senha `root` (não podemos utilizar a nova senha que setamos via SECRETS pois foi a senha antiga - root - que foi armazenada via arquivo que já realizamos o esquema do volume). Neste caso teria que deletar o *PersistentVolumeClaim*: `kubectl delete persistentvolumeclaim mysql-pv-claim` e aplicar novamente o *deployment* para utilizarmos a senha `a1a2a3a4`.
+
