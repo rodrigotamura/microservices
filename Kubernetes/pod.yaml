@@ -1,0 +1,28 @@
+# Declarando a versão da API do Kubernetes
+# O Kubernetes possui várias versões e cada
+# versão possui recursos diferentes. Mas se
+# quisermos as funções principais vamos utilizar
+# o que segue na documentação oficial
+apiVersion: v1
+
+# A partir da próxima linha de comando o Kubernetes
+# saberá que o que estou criando é um POD
+kind: Pod
+
+metadata:
+    # definindo um nome
+    name: pod-exemplo
+# declarando as especificações que no mínimo o POD deve ter
+spec:
+    # qual container que esse POD vai rodar
+    # podemos ter diversos containers dentro de um POD
+    # mas o RECOMENDADO é trabalhar com um POD
+    # por container
+    containers: 
+        - name: pod-exemplo
+          # informando a imagem desta forma abaixo
+          # buscará do DockerHub
+          # Mas posso colocar o registro desejado 
+          # através de um endereço completo
+          # inclusive o registro do Google Container Registry
+          image: nginx:1.17-alpine

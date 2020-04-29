@@ -122,3 +122,33 @@ kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   9m25s
 
 Retornou um elemento chamado **kubernetes**, do tipo **ClusterIP** (só possui comunicação interna por dentro do *cluster*), note que não tem IP externo, mas somente o interno.
 
+## Criando primeiro POD
+
+Neste tópico iremos aberdar como se cria um POD, porém, no dia a dia não vamos sair e ir criando PODs, mas sim vamos criar um *Deployment* e ele será responsável por criar os PODs.
+
+Vamos criar um arquivo chamado [pod.yaml](pod.yaml). Abra-o para visualizar os detalhamentos.
+
+Após configurado o arquivo acima, vamos rodar o seguinte comando:
+
+`kubectl apply -f pod.yaml`
+
+- `apply`: para aplicar este arquivo, aplicando sempre as novas alterações caso houver;
+- `-f <nome-arquivo>`: declarando que vamos indicar um arquivo.
+
+Caso dê tudo certo aparecerá a mensagem `pod/pod-exemplo created` 👍
+
+Executando o comando `kubectl get pods` listarão os PODs e retornará o seguinte:
+
+```
+NAME          READY   STATUS    RESTARTS   AGE
+pod-exemplo   1/1     Running   0          101s
+```
+
+O comando `kubectl logs pod-exemplo` retornará possíveis erros. Se não retornar algo significa que o POD subiu sem problemas 😉.
+
+Mas, **_como faremos para acessar este container do NGINX que criamos dentro deste POD?_**
+
+Lembra que, como foi abordado ontem, todo o tráfego que precisa acessar é necessário ter um *service*, possuindo os três tipos - ClusterIP, LoadPort e LoadBBalancer. No próximo tópico vamos matar este POD recém criado, vamos criar um *Deployment*, e através deste vamos criar um novo POD e depois vamos criar um *Service* para expor este *Deployment* onde tem os PODs rodando para poder acessar via browser o serviço do NGINX.
+
+
+
