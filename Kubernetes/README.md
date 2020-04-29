@@ -342,6 +342,25 @@ Portanto acesse o arquivo de [deployment](./mysql/deployment.yaml) para aplicar 
 
 Após finalizar esta etapa de configuração de volumes no *deployment*, podemos aplicar as alterações e listarmos os PODs. E você poderá ver que o POD do MySQL está rodando normalmente.
 
-🔴 **Porém vai acontecer uma situação** quando rodarmos este *deployment*, não no Minikube, mas sim numa cloud, quando pegamos um volume novo normalmente virá com um arquivo lá dentro chamado `lost+found`. Quando vou montar o volume pelo Kubernetes, o **MySQL exige que a pasta esteja vazia** e poderá ocorrer erro devido a este arquivo `lost+found`.
+🔴 **Porém vai acontecer uma situação** quando rodarmos este *deployment*, não no Minikube, mas sim numa cloud. Quando pegamos um volume novo normalmente virá com um arquivo lá dentro chamado `lost+found`. Quando vou montar o volume pelo Kubernetes, o **MySQL exige que a pasta esteja vazia** e poderá ocorrer erro devido a este arquivo `lost+found`.
 
-Para isso, vamos implementar dentro do [deployment](./mysql/deployment.yaml) o caminho `spec.template.spec.containers.args:"--ignore-db-dir=lost+found"`
+Para isso, vamos implementar dentro do [deployment](./mysql/deployment.yaml) o caminho `spec.template.spec.containers.args:"--ignore-db-dir=lost+found"`.
+
+### Trabalhando com SECRETS no MySQL
+
+Note que dentro das configurações que setamos para gerar o *deployment* do MySQL expomos a senha do usuário *root*, o que é muito perigoso e não aconselhável.
+
+O Kubernetes oferece um objeto chamado SECRETS, e neste objeto podemos criar *strings* ficando criptografada lá no Kubernetes. Portanto esta senha não ficará explícita ali no arquivo de *deployment* do Kubernetes.
+
+Podemos criar as SECRETS baseados em arquivos YAMLs, Mas neste caso vamos criar via linha de comando pois não queremos deixar um arquivo exposto com a senha ou outros dados secretos.
+
+Vamos executar o comando `kubectl create secret generic mysql-pass --from-literal=password='a1a2a3a4'`, onde:
+
+- `mysql-pass`: nome da secret;
+- `--from-literal=password='a1a2a3a4'`: vai estar escrito de forma literal. O `password` é o nome da key e `a1a2a3a4` é o valor desta key.
+
+Execute o comando `kubectl get secrets` para visualizar a SECRET chamada `mysql-pass`.
+
+Agora vamos lá para o [deployment](./mysql/deployment.yaml), mais especificamente na linha da senha de *root*. Abra-o para ver mais detalhes.
+
+Ao rodar o *deployment* novamente, é provável que a senha não tenha sido alterada pois os arquivos, que iniclusive possui a senha gravada, estão lá no VolumeClaim.

@@ -32,7 +32,12 @@ spec: # do Deployment
               env:
               # MYSQL_ROOT_PASSWORD=root
               - name: MYSQL_ROOT_PASSWORD
-                value: root
+              # value: root -> Antigo, sem usar secrets
+                # utilizando a SECRET
+                valueFrom: 
+                    secretKeyRef: 
+                        name: mysql-pass
+                        key: password
               # Se quiser adicionar mais...
         #     - name: VARIAVEL
         #       value: valor
