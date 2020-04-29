@@ -36,7 +36,32 @@ spec: # do Deployment
               # Se quiser adicionar mais...
         #     - name: VARIAVEL
         #       value: valor
+              
+              # normalmente num ambiente cloud - não no Minikube que é local
+              # quando um volume é gerado o arquivo lost+found vem junto
+              # dentro deste volume. Acontece que o MySQL exige que a pasta
+              # seja vazia. Portanto, vamos passar um argumento para 
+              # ignorar o lost+found para evitar este erro.
+              args: 
+              - "--ignore-db-dir=lost+found"
               ports:
               - containerPort: 3306
+
+              # Monta o volume efetivamente
+              volumeMounts:
+              # queremos dar o mount neste volume indicado em
+              # spec.template.spec.volumes.name neste arquivo.
+              - name: mysql-persistent-storage
+                # qual o caminho 
+                mountPath: /var/lib/mysql
+
+            # fazendo a definição de volume
+            volumes:
+              # atribuindo um nome qualquer
+            - name: mysql-persistent-storage
+              # indicando o nome do persistentVolumeClaim
+              persistentVolumeClaim:
+                # puxamos lá do arquivo persistent-volume.yaml
+                claimName: mysql-pv-claim
 
 

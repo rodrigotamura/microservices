@@ -316,3 +316,32 @@ Estando com o *service* no ar, vamos executar o comando `minikube service nginx-
 Vamos criar os nossos arquivos de Kubernetes dentro [desta pasta](./mysql).
 
 Primeiro vamos preparar o nosso arquivo de [deployment](./mysql/deployment.yaml) e fazer o teste subindo o mesmo. Não se esqueça que para verificar se o serviço de MySQL subiu certinho temos que dar o comando `kubectl get pods`.
+
+### Montando volume persistente no Mysql
+
+Dentro da nossa pasta que estamos trabalhando (mysql) vamos criar o arquivo [persistent-volume.yaml](./mysql/persistent-volume.yaml) com um novo tipo: **PersistentVolumeClaim**. Neste arquivo que vamos configurar a persistência de dados do MySQL. Abra-o para ver mais detalhes.
+
+Este tipo de objeto - `PersistentVolumeClaim` - solicita para o Kubernetes liberar um espaço em disco para estes dados não se perderem.
+
+> É interessante que quando utilizamos o Kubernetes no GCP, Amazon, ou Azure, quando for solicitado é criado um volume por exemplo num EBS Block (Amazon) e fica guardado aquele volume que conseguimos criar *snapshot* e etc. Ou seja, o Kubernetes é totalmente integrado com o ambiente cloud.
+
+Depois de criado o arquivo de persistência de dados, vamos rodar o comando `kubectl apply -f mysql/persistent-volume,yaml`. Para verificar se está tudo certo, vamos executar o comando `kubectl get persistentvolumeclaim`, o qual retornará o seguinte:
+
+```
+NAME             STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+mysql-pv-claim   Bound    pvc-7cb4bc51-faca-42c5-b457-4f0c4787b0e7   20Gi       RWO            standard       74s
+```
+
+Note que o `STATUS` está como `BOUND`, significando que o volume ficou disponível com sucesso.
+
+Agora precisamos montar este volume no MySQL. Antes já fizemos a montagem de volume utilizando o ConfigMap, mas desta vez é um pouco diferente pois agora se trata de arquivos de dados.
+
+A ideia é a mesma, onde teremos que criar um bloco de volume, com um nome e na especificação do template do POD temos que indicar que iremos utilizar este volumenum determinados caminho.
+
+Portanto acesse o arquivo de [deployment](./mysql/deployment.yaml) para aplicar estas alterações.
+
+Após finalizar esta etapa de configuração de volumes no *deployment*, podemos aplicar as alterações e listarmos os PODs. E você poderá ver que o POD do MySQL está rodando normalmente.
+
+🔴 **Porém vai acontecer uma situação** quando rodarmos este *deployment*, não no Minikube, mas sim numa cloud, quando pegamos um volume novo normalmente virá com um arquivo lá dentro chamado `lost+found`. Quando vou montar o volume pelo Kubernetes, o **MySQL exige que a pasta esteja vazia** e poderá ocorrer erro devido a este arquivo `lost+found`.
+
+Para isso, vamos implementar dentro do [deployment](./mysql/deployment.yaml) o caminho `spec.template.spec.containers.args:"--ignore-db-dir=lost+found"`

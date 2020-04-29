@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: mysql-pv-claim
+spec:
+    # qual o mode: ler ou gravar?
+    accessModes:
+        # na hora de montar já conseguiremos fazer gravações
+        # e toda hora que quisermos gravar ele conseguirá fazer
+        # as gravações dos arquivos 
+        - ReadWriteOnce
+
+    resources:
+        requests: 
+            # Separando 20 GB
+            storage: 20Gi
